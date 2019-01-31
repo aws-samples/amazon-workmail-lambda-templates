@@ -1,6 +1,6 @@
-# AWS WorkMail hello world
+# AWS WorkMail Hello World
 
-This is a hello world example of the WorkMail lambda feature. For more information see [AWS WorMail lambda documentation](https://docs.aws.amazon.com/workmail/latest/adminguide/lambda.html)
+This is a hello world example of the WorkMail Lambda feature. For more information see [AWS WorkMail Lambda documentation](https://docs.aws.amazon.com/workmail/latest/adminguide/lambda.html)
 
 To use this application you can deploy it via Lambda console. Visit [AWS Lambda Console](https://console.aws.amazon.com/lambda/home?region=us-east-1#/create?firstrun=true&tab=serverlessApps)
 
@@ -29,7 +29,7 @@ sam deploy \
 ```
 
 ### Configure WorkMail
-Find the ARN of your new lambda function using:
+Find the ARN of your new Lambda function using:
 
 ```bash
 aws cloudformation describe-stacks \
@@ -37,5 +37,5 @@ aws cloudformation describe-stacks \
   --query 'Stacks[].Outputs[0].OutputValue'
 ```
 
-Now you can go to WorkMail console and configure an outbound rule to use your new lambda.
+Now you can go to WorkMail console and configure an outbound rule to use your new Lambda.
 
