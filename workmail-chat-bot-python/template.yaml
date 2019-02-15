@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+    WorkMail Chat Bot Lambda SAM
+   
+Parameters:
+    ChatClient:
+        Type: String
+        AllowedValues:
+            - Chime
+            - Slack
+        Description: "Name of Chat Client (Supported: Chime, Slack)"
+    WebhookURL:
+        Type: String
+        NoEcho: true
+        Description: "Chat Webhook URL (To create one, refer to the README)"
+    ActiveWords:
+        Type: CommaDelimitedList
+        Default: ''
+        Description: "Comma-separated list of words which will trigger a message to the chat channel if found in an email subject line. Leave blank to receive messages for all emails"  
+
+Resources:
+    WorkMailChatBotFunction:
+        Type: AWS::Serverless::Function 
+        Properties:
+            CodeUri: src/
+            Handler: app.chat_handler
+            Runtime: python3.6
+            Timeout: 10
+            Environment:
+                Variables:
+                    CHAT_CLIENT:
+                        Ref: ChatClient
+                    WEBHOOK_URL:
+                        Ref: WebhookURL
+                    ACTIVE_WORDS: !Join [ ",", !Ref ActiveWords ]
+    
+    PermissionToCallLambdaAbove:
+        Type: AWS::Lambda::Permission
+        DependsOn: WorkMailChatBotFunction
+        Properties: 
+            Action: lambda:InvokeFunction
+            FunctionName: !Ref WorkMailChatBotFunction
+            Principal: !Sub 'workmail.${AWS::Region}.amazonaws.com'
+      
+Outputs:
+      HelloWorldArn:
+              Value: !GetAtt WorkMailChatBotFunction.Arn
