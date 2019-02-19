@@ -1,4 +1,4 @@
-# AWS WorkMail Chat Bot
+# Amazon WorkMail Chat Bot
 This application integrates your email with a basic chat bot using webhooks. Specifically, the application automatically posts to a configured chat channel whenever an email is sent or received which contains a configurable string in the email subject line. The code provided here already supports [Amazon Chime](https://aws.amazon.com/chime/) and [Slack](https://slack.com/), and it can easily be modified to support any other chat application that can be accessed via webhooks.
 
 ## Setup
