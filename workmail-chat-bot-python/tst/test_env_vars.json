@@ -1,0 +1,7 @@
+{
+  "WorkMailChatBotFunction": {
+    "WEBHOOK_URL" : "YOUR_WEBHOOK_URL",
+    "CHAT_CLIENT" : "YOUR_CHAT_CLIENT",
+    "ACTIVE_WORDS": "YOUR_ACTIVE_WORDS"
+  }
+}
