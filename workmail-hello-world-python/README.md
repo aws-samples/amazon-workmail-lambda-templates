@@ -10,7 +10,7 @@ Clone this repository from [GitHub](https://github.com/aws-samples/amazon-workma
 If you are not familiar with CloudFormation templates, see [Learn Template Basics](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/gettingstarted.templatebasics.html).
 
 1. Create additional resources for your application by changing [template.yaml](https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-hello-world-python/template.yaml). See this [documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-reference.html) for more details.
-2. Modify your Lambda function by changing [app.py](https://github.com/sagariiit/amazon-workmail-lambdas-templates/blob/master/workmail-hello-world-python/src/app.py).
+2. Modify your Lambda function by changing [app.py](https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-hello-world-python/workmail-hello-world/app.py).
 3. Test your Lambda function locally:
     1. [Set up the SAM CLI](https://aws.amazon.com/serverless/sam/).
     2. Configure test event at `event.json`.
