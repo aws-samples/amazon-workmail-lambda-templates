@@ -44,5 +44,5 @@ Resources:
             Principal: !Sub 'workmail.${AWS::Region}.amazonaws.com'
       
 Outputs:
-      HelloWorldArn:
+      ChatBotArn:
               Value: !GetAtt WorkMailChatBotFunction.Arn

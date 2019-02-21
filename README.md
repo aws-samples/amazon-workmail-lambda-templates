@@ -1,4 +1,4 @@
-## Amazon WorkMail Lambdas Templates
+## Amazon WorkMail Lambda Templates
 
 Serverless applications for Amazon WorkMail. To use these applications you can deploy them via [AWS Lambda Console.](https://console.aws.amazon.com/lambda/home?region=us-east-1#/create?firstrun=true&tab=serverlessApps)
 
