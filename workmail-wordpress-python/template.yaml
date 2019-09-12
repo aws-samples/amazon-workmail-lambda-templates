@@ -3,19 +3,6 @@ Transform: AWS::Serverless-2016-10-31
 Description:
     "WorkMail Blog Poster Lambda SAM"
 
-Metadata:
-  AWS::ServerlessRepo::Application:
-    Name: workmail-wordpress-python
-    Description: This application automatically publishes drafts of blog posts to your WordPress blog based on email sent or received.
-    Author: Amazon WorkMail
-    SpdxLicenseId: Apache-2.0
-    LicenseUrl: ../LICENSE
-    ReadmeUrl: README.md
-    Labels: ['workmail', 'email', 'wordpress', 'lambda']
-    HomePageUrl: https://github.com/aws-samples/amazon-workmail-lambda-templates/tree/master/workmail-wordpress-python
-    SemanticVersion: 1.0.0
-    SourceCodeUrl: https://github.com/aws-samples/amazon-workmail-lambda-templates/tree/master/workmail-wordpress-python
-
 Parameters:
     BlogDomain:
         Type: String
