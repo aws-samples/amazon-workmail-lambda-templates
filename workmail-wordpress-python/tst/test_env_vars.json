@@ -1,0 +1,6 @@
+{
+  "WorkMailBlogPosterFunction": {
+    "BLOG_DOMAIN" : "BLOG_DOMAIN",
+    "SECRET_ID" : "SECRET_ID"
+  }
+}

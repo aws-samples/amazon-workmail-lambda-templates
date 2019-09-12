@@ -25,8 +25,11 @@ Resources:
         Properties:
             CodeUri: src/
             Handler: app.chat_handler
-            Runtime: python3.6
+            Runtime: python3.7
             Timeout: 10
+            Role: !GetAtt WorkMailChatBotFunctionRole.Arn
+            Layers:
+                - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:1
             Environment:
                 Variables:
                     CHAT_CLIENT:
@@ -42,7 +45,34 @@ Resources:
             Action: lambda:InvokeFunction
             FunctionName: !Ref WorkMailChatBotFunction
             Principal: !Sub 'workmail.${AWS::Region}.amazonaws.com'
-      
+
+    WorkMailChatBotFunctionRole:
+        Type: AWS::IAM::Role
+        Properties:
+          AssumeRolePolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                - lambda.amazonaws.com
+              Action:
+              - sts:AssumeRole
+          Path: "/"
+          Policies:
+            - 
+              PolicyName: "WorkMailMessageFlowReadOnly"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                - 
+                  Effect: "Allow"
+                  Action:
+                  - "workmailmessageflow:GetRawMessageContent"
+                  Resource: "*"
+          ManagedPolicyArns:
+            - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+ 
 Outputs:
       ChatBotArn:
               Value: !GetAtt WorkMailChatBotFunction.Arn
