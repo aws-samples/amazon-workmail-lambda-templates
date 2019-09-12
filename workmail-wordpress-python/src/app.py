@@ -1,8 +1,7 @@
-from botocore.vendored import requests
-
 import logging
 import os
 import urllib.parse
+import requests
 import utils
 
 logger = logging.getLogger()
