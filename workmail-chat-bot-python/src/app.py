@@ -1,40 +1,31 @@
-from botocore.vendored import requests
 import logging
 import os
+import requests
+import utils
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-def search_active_words(subject, active_words):
-    """
-    This method looks for active_words in subject in a case-insensitive fashion
+MAX_CHAT_MESSAGE_LEN = 1024
 
+def construct_chat_message(message_id, from_address, subject):
+    """
+    Constructs a chat message by downloading the full email message, parsing the email body, and truncating contents if required.
     Parameters
     ----------
-    subject: string, required
-        email subject
-    active_words: string, required
-        active words represented in a comma delimited fashion
-
+    message_id: string, required
+        message_id of the email to download
     Returns
     -------
-    True
-        If any active words were found in subject or,
-        No active words are configured
-    False
-        If no active words were found in subject
+    string
+        chat message
     """
-    if not active_words:
-        return True
-    else:
-        # Convert to lower case words by splitting active_words. For example: 'Hello  ,  World,' is generated as ('hello','world').
-        lower_words = [word.strip().lower() for word in filter(None, active_words.split(','))]
-        # Convert subject to lower case in order to do a case insensitive lookup.
-        subject_lower = subject.lower()
-        for word in lower_words:
-            if word in subject_lower:
-                return True
-    return False
+    parsed_email = utils.download_email(message_id)
+    email_body = utils.extract_email_body(parsed_email)
+    if len(email_body) > MAX_CHAT_MESSAGE_LEN:
+        email_body = email_body[:MAX_CHAT_MESSAGE_LEN]
+        email_body = f"{email_body}\n\n....Content was truncated."
+    return f"Alert: email from {from_address} with subject {subject}\n\n{email_body}"
 
 def chat_handler(event, context):
     """
@@ -61,8 +52,9 @@ def chat_handler(event, context):
 		"address" :  "sender@domain.test"                        # String containing sender email address
 	    },
 	    "subject" : "Hello From Amazon WorkMail!",                   # String containing email subject (Truncated to first 256 chars)
-	    "truncated": false                                           # boolean indicating if any field in message was truncated due to size limitations
-	}
+	    "truncated": false,                                          # boolean indicating if any field in message was truncated due to size limitations
+	    "messageId": "00000000-0000-0000-0000-000000000000"          # String containing the id of the message in the WorkMail system
+        }
 
     context: object, required
 	Lambda Context runtime methods and attributes
@@ -97,6 +89,7 @@ def chat_handler(event, context):
     ------
     Nothing
     """
+    logger.info(event)
     webhook_url = os.getenv('WEBHOOK_URL')
     if not webhook_url:
         error_msg = 'WEBHOOK_URL not set in environment. Please follow https://docs.aws.amazon.com/lambda/latest/dg/env_variables.html to set it.'
@@ -113,9 +106,9 @@ def chat_handler(event, context):
     subject = event['subject']
     from_address = event['envelope']['mailFrom']['address']
 
-    if search_active_words(subject, active_words):
+    if utils.search_active_words(subject, active_words):
         headers = {'Content-Type': 'application/json'}
-        message_text = f"Alert: email from {from_address} with subject {subject}"
+        message_text = construct_chat_message(event['messageId'], from_address, subject)
         payload = None
         if chat_client == 'Chime':
             payload = {'Content': message_text}

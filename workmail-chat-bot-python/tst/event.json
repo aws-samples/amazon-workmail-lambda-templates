@@ -13,5 +13,6 @@
         "address" :  "sender@domain.test"
     },
     "subject" : "Hello From Amazon WorkMail!",
+    "messageId": "00000000-0000-0000-0000-000000000000",
     "truncated": false
 }
