@@ -2,7 +2,6 @@ from botocore.vendored import requests
 
 import logging
 import os
-import json
 import urllib.parse
 import utils
 
