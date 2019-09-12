@@ -1,0 +1,18 @@
+{
+    "summaryVersion": "2018-10-10",
+    "envelope": {
+        "mailFrom" : {
+            "address" : "from@domain.test"
+        },
+        "recipients" : [
+           { "address" : "recipient1@domain.test" },
+           { "address" : "recipient2@domain.test" }
+        ]
+    },
+    "sender" : {
+        "address" :  "sender@domain.test"
+    },
+    "subject" : "[Blog Submission] My Blog Post For Amazon WorkMail",
+    "messageId" : "00000000-0000-0000-0000-000000000000",
+    "truncated": false
+}
