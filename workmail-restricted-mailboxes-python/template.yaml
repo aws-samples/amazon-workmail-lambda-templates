@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+    WorkMail Restricted Mailboxes Lambda SAM
+
+Parameters:
+    WorkMailOrganizationID:
+        Type: String
+        AllowedPattern: "^m-[0-9a-f]{32}$"
+        Description: "You can find your organization id in the Organization settings tab in the WorkMail console"
+        
+    RestrictedGroupName:
+        Type: String
+        Description: "WorkMail group name in your organization that has internal only mailboxes as members"
+
+    ReportMailboxAddress:
+        Type: String
+        Default: ''
+        Description: "[Optional] Email address of the mailbox in your organization where you would like to receive copy of a restricted email"
+
+Resources:
+    WorkMailRestrictedMailboxesFunction:
+        Type: AWS::Serverless::Function 
+        Properties:
+            CodeUri: src/
+            Handler: app.restricted_mailboxes_handler
+            Runtime: python3.7
+            Role:
+              Fn::GetAtt: WorkMailRestrictedMailboxesFunctionRole.Arn
+            Timeout: 10
+            Layers:
+                - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:1
+            Environment:
+                Variables:
+                    WORKMAIL_ORGANIZATION_ID:
+                        Ref: WorkMailOrganizationID
+                    RESTRICTED_GROUP_NAME:
+                        Ref: RestrictedGroupName
+                    REPORT_MAILBOX_ADDRESS:
+                        Ref: ReportMailboxAddress
+
+    WorkMailRestrictedMailboxesFunctionRole:
+        Type: AWS::IAM::Role
+        Properties:
+          AssumeRolePolicyDocument:
+            Statement:
+            - Action:
+              - sts:AssumeRole
+              Effect: Allow
+              Principal:
+                Service:
+                - "lambda.amazonaws.com"
+            Version: "2012-10-17"
+          Path: "/"
+          ManagedPolicyArns:
+            - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+            - "arn:aws:iam::aws:policy/AmazonWorkMailReadOnlyAccess"
+
+    PermissionToCallLambdaAbove:
+        Type: AWS::Lambda::Permission
+        DependsOn: WorkMailRestrictedMailboxesFunction
+        Properties: 
+          Action: lambda:InvokeFunction
+          FunctionName: !Ref WorkMailRestrictedMailboxesFunction
+          Principal: !Sub 'workmail.${AWS::Region}.amazonaws.com'
+
+Outputs:
+   WorkMailRestrictedMailboxesFunctionArn:
+      Value: !GetAtt WorkMailRestrictedMailboxesFunction.Arn
