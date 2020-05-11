@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Lambda function to stop mail storms using WorkMail rules
+    
+Parameters:
+    ProtectedAddresses:
+        Type: CommaDelimitedList
+        Default: ''
+        Description: "List of email addresses to stop mail storms, comma-separated. Example: big_group1@example.com, big_group2@example.com"
+    MailStormThreshold:
+        Type: Number
+        MinValue: 1
+        MaxValue: 10000
+        Description: "Threshold of number of emails per minute that will trigger the mail storm protection"
+
+Resources:
+    StopMailStormFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: src/
+            Handler: app.lambdaHandler
+            Runtime: nodejs12.x
+            Timeout: 10
+            Role: !GetAtt StopMailStormFunctionRole.Arn
+            Environment:
+                Variables:
+                    PROTECTED_ADDRESSES: !Join [ ",", !Ref ProtectedAddresses ]
+                    THRESHOLD: !Ref MailStormThreshold
+
+    StopMailStormFunctionRole:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Statement:
+                    - Action:
+                          - sts:AssumeRole
+                      Effect: Allow
+                      Principal:
+                          Service:
+                              - "lambda.amazonaws.com"
+                Version: "2012-10-17"
+            Path: "/"
+            ManagedPolicyArns:
+                - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+            Policies:
+                - PolicyName: "allow-cloudwatch-actions"
+                  PolicyDocument:
+                      Version: "2012-10-17"
+                      Statement:
+                          - Effect: "Allow"
+                            Action:
+                                - "cloudwatch:PutMetricData"
+                                - "cloudwatch:PutMetricAlarm"
+                                - "cloudwatch:DescribeAlarms"
+                            Resource: "*"
+
+
+    PermissionToCallLambda:
+        Type: AWS::Lambda::Permission
+        DependsOn: StopMailStormFunction
+        Properties:
+            Action: lambda:InvokeFunction
+            FunctionName: !Ref StopMailStormFunction
+            Principal: !Sub 'workmail.${AWS::Region}.amazonaws.com'
+
+Outputs:
+    StopMailStormFunctionArn:
+        Value: !GetAtt StopMailStormFunction.Arn

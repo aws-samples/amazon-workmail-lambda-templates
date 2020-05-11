@@ -1,8 +1,27 @@
-language: python
-python: 
-  - "3.6"
-  - "3.7"
-install:
-- pip install -r requirements.txt
-script:
-- python -m pyflakes .
+matrix:
+  include:
+    - language: python
+      python:
+        - "3.6"
+      install:
+        - pip install -r requirements.txt
+      script:
+        - python -m pyflakes .
+
+    - language: python
+      python:
+        - "3.7"
+      install:
+        - pip install -r requirements.txt
+      script:
+        - python -m pyflakes .
+
+    - language: node_js
+      node_js:
+        - 12
+      before_install:
+        - cd workmail-stop-mail-storm/src
+      install:
+        - npm install
+      script:
+        - npm run jshint

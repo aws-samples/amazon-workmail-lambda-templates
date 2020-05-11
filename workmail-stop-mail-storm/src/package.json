@@ -1,0 +1,15 @@
+{
+  "name": "workmail-stop-mail-storm",
+  "version": "1.0.0",
+  "description": "A sample lambda email flow rule for Amazon WorkMail, intended to stop mail storms to large groups. For more information, visit https://github.com/aws-samples/amazon-workmail-lambda-templates",
+  "main": "app.js",
+  "scripts": {
+    "jshint": "jshint *.js",
+    "test": "sam build -t ../template.yaml && sam local invoke -e ../tst/event.json -n ../tst/environment_variables.json"
+  },
+  "author": "Amazon WorkMail",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "jshint": "^2.11.0"
+  }
+}
