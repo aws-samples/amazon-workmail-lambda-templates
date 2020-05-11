@@ -1,0 +1,6 @@
+{
+    "StopMailStormFunction": {
+        "PROTECTED_ADDRESSES": "big_group1@domain.test, big_group2@domain.test",
+        "THRESHOLD": 20
+    }
+}
