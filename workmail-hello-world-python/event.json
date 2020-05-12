@@ -1,5 +1,5 @@
 {
-    "summaryVersion": "2018-10-10",
+    "summaryVersion": "2019-07-28",
     "envelope": {
         "mailFrom" : {
             "address" : "from@domain.test"
@@ -13,5 +13,8 @@
         "address" :  "sender@domain.test"
     },
     "subject" : "Hello From Amazon WorkMail!",
+    "messageId": "00000000-0000-0000-0000-000000000000",
+    "invocationId": "0000000000000000000000000000000000000000",
+    "flowDirection": "OUTBOUND",
     "truncated": false
 }
