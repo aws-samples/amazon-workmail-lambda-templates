@@ -2,7 +2,13 @@
 
 This is a hello world example of the WorkMail Lambda feature. For more information see [AWS WorkMail Lambda documentation](https://docs.aws.amazon.com/workmail/latest/adminguide/lambda.html)
 
-To use this application you can deploy it via [AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:489970191081:applications~workmail-hello-world-python)
+## Setup
+1. Deploy this application via [AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:489970191081:applications~workmail-hello-world-python)
+2. Open the [WorkMail Console](https://console.aws.amazon.com/workmail/) and create a **RunLambda** [Email Flow Rule](https://docs.aws.amazon.com/workmail/latest/adminguide/create-email-rules.html) that uses this Lambda function.
+
+You now have a working Lambda function that will be triggered by WorkMail based on the rule you created. To add business logic to your Lambda function, open the [AWS Lambda Console](https://eu-west-1.console.aws.amazon.com/lambda/home?region=eu-west-1#/functions) to edit and test your Lambda function with the built-in code editor.
+
+For more advanced use cases, such as changing your CloudFormation template to create additional AWS resources that will support this application, follow the instructions below.
 
 ### Local development
 Clone this repository from [GitHub](https://github.com/aws-samples/amazon-workmail-lambda-templates).
