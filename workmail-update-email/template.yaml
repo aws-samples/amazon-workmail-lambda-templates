@@ -1,0 +1,121 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description:
+    "WorkMail Update Email"
+
+Parameters:
+    Disclaimer:
+        Type: String
+        Default: ''
+        Description: "[Optional] Text that you'd like to prepend to the email body."
+    Footer:
+        Type: String
+        Default: ''
+        Description: "[Optional] Text that you'd like to append to the email body."
+
+Resources:
+    WorkMailUpdateEmailFunction:
+        Type: AWS::Serverless::Function
+        DependsOn: WorkMailUpdatedMsgBucket 
+        Properties:
+            CodeUri: src/
+            Handler: app.update_handler
+            Runtime: python3.7
+            Timeout: 10
+            Role:
+              Fn::GetAtt: WorkMailUpdateEmailFunctionRole.Arn
+            Layers:
+                - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:2
+            Environment:
+                Variables:
+                    DISCLAIMER:
+                        Ref: Disclaimer
+                    FOOTER:
+                        Ref: Footer
+                    UPDATED_EMAIL_BUCKET:
+                        Ref: WorkMailUpdatedMsgBucket
+
+    WorkMailUpdateEmailFunctionRole:
+        Type: AWS::IAM::Role
+        Properties:
+          AssumeRolePolicyDocument:
+            Statement:
+            - Action:
+              - sts:AssumeRole
+              Effect: Allow
+              Principal:
+                Service:
+                - "lambda.amazonaws.com"
+            Version: "2012-10-17"
+          Path: "/"
+          ManagedPolicyArns:
+            - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+            - "arn:aws:iam::aws:policy/AmazonWorkMailMessageFlowFullAccess"
+          Policies:
+            -
+              PolicyName: "allow-s3-write"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "s3:PutObject"
+                    Resource:
+                        - Fn::Sub: "${WorkMailUpdatedMsgBucket.Arn}/*"
+
+    WorkMailPermissionToInvokeLambda:
+        Type: AWS::Lambda::Permission
+        DependsOn: WorkMailUpdateEmailFunction
+        Properties:
+            Action: lambda:InvokeFunction
+            FunctionName: !Ref WorkMailUpdateEmailFunction
+            Principal: !Sub 'workmail.${AWS::Region}.amazonaws.com'
+   
+    WorkMailUpdatedMsgBucket:
+        Type: AWS::S3::Bucket
+        DeletionPolicy: Retain
+        Properties:
+            BucketEncryption:
+                ServerSideEncryptionConfiguration:
+                    - ServerSideEncryptionByDefault:
+                        SSEAlgorithm: AES256
+            PublicAccessBlockConfiguration:
+                BlockPublicAcls : true
+                BlockPublicPolicy : true
+                IgnorePublicAcls : true
+                RestrictPublicBuckets : true
+            VersioningConfiguration:
+                Status: Enabled
+            LifecycleConfiguration:
+                Rules:
+                  - 
+                    Status: Enabled
+                    ExpirationInDays: 1 # Delete after 1 day
+                  - 
+                    Status: Enabled
+                    NoncurrentVersionExpirationInDays : 1 # Delete non current versions after 1 day
+
+    WorkMailUpdatedMsgBucketPolicy:
+        Type: AWS::S3::BucketPolicy
+        Properties:
+            Bucket:
+                Ref: WorkMailUpdatedMsgBucket
+            PolicyDocument:
+              Statement:
+                - Action:
+                    - "s3:GetObject"
+                    - "s3:GetObjectVersion"
+                  Effect: Allow
+                  Resource:
+                    - Fn::Sub: "${WorkMailUpdatedMsgBucket.Arn}/*"
+                  Condition:
+                    Bool:
+                        aws:SecureTransport:
+                            true
+                  Principal:
+                    Service: !Sub 'workmail.${AWS::Region}.amazonaws.com'
+
+Outputs:
+      UpdateEmailArn:
+              Value: !GetAtt WorkMailUpdateEmailFunction.Arn

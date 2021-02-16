@@ -94,7 +94,9 @@ def lambda_handler(event, context):
         content = {
             's3Reference': s3_reference
         }
+
         assert content  # Silence pyflakes for unused variable
+
         # If you'd like to finalise modifying email subjects, then uncomment the line below.
         # workmail_message_flow.put_raw_message_content(messageId=message_id, content=content)
 
