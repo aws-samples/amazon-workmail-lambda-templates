@@ -3,7 +3,7 @@ This application enables you to add a customized disclaimer and footer in the bo
 
 Specifically, email messages sent from an external email address to your organization are updated with a disclaimer and footer. The subject of the email is also prefixed with text **"External Email"**. These set of features ensure that users in your organization are aware of emails originating from outside your organization.
 
-![Screenshot][Image.png]
+![Screenshot](Image.png)
 
 Both a disclaimer and footer are optional and are only added if a value is provided during setup.
 
