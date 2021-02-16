@@ -1,0 +1,7 @@
+{
+  "WorkMailUpdateEmailFunction": {
+      "UPDATED_EMAIL_BUCKET": "YOUR_UPDATED_EMAIL_BUCKET",
+      "DISCLAIMER": "YOUR_CUSTOM_DISCLAIMER_TEXT",
+      "FOOTER": "YOUR_CUSTOM_FOOTER_TEXT"
+  }
+}
