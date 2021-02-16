@@ -1,0 +1,5 @@
+{
+  "WorkMailHelloWorldFunction": {
+      "UPDATED_EMAIL_S3_BUCKET": "UPDATED_EMAIL_S3_BUCKET"
+  }
+}
