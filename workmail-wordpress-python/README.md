@@ -88,13 +88,14 @@ If you are not familiar with CloudFormation templates, see [Learn Template Basic
 2. Modify your Lambda function by changing [app.py](https://github.com/aws-samples/amazon-workmail-lambdas-templates/blob/master/workmail-wordpress-python/src/app.py).
 3. Test your Lambda function locally:
  1. [Set up the SAM CLI](https://aws.amazon.com/serverless/sam/).
- 2. Configure environment variables at `tst/test_env_vars.json`.
+ 2. Configure environment variables at `tst/env_vars.json`.
  3. Configure test event at `tst/event.json`.
  4. Invoke your Lambda function locally using:
-        `sam local invoke WorkMailBlogPosterFunction -e tst/event.json --env-vars tst/test_env_vars.json`
+        `sam local invoke WorkMailBlogPosterFunction -e tst/event.json --env-vars tst/env_vars.json`
 
 ### Test Message Ids
-This application uses a `messageId` passed to the Lambda function to retrieve the message content from WorkMail and post it to your blog. When testing, the `tst/event.json` file uses a mock messageId which does not exist. If you want to test with a real messageId, you can configure a WorkMail Email Flow Rule with the Lambda action using this Lambda, and send some emails to trigger it. The Lambda function will emit the messageId it receives from WorkMail in the logs, which you can then use in your test event data.
+This application uses a `messageId` passed to the Lambda function to retrieve the message content from WorkMail. When testing, the `tst/event.json` file uses a mock messageId which does not exist. If you want to test with a real messageId, you can configure a WorkMail Email Flow Rule with the Lambda action that uses the Lambda function created in **Setup**, and send some emails that will trigger the email flow rule. The Lambda function will emit the messageId it receives from WorkMail in the CloudWatch logs, which you can
+then use in your test event data. For more information see [Accessing Amazon CloudWatch logs for AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html). Note that you can access messages in transit for a maximum of one day.
 
 Once you have validated that your Lambda function behaves as expected, you are ready to deploy this Lambda function.
 
@@ -126,7 +127,3 @@ aws cloudformation describe-stacks \
   --stack-name $YOUR_STACK_NAME \
   --query 'Stacks[].Outputs[0].OutputValue'
 ```
-
-## Frequently Asked Questions
-### Where are the logs?
-You can find the logs in CloudWatch. For more information see [Accessing Amazon CloudWatch logs for AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html).
