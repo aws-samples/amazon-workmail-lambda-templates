@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
     WorkMail Chat Bot Lambda SAM
-   
+
 Parameters:
     ChatClient:
         Type: String
@@ -29,7 +29,7 @@ Resources:
             Timeout: 10
             Role: !GetAtt WorkMailChatBotFunctionRole.Arn
             Layers:
-                - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:1
+                - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:2
             Environment:
                 Variables:
                     CHAT_CLIENT:
@@ -59,20 +59,10 @@ Resources:
               Action:
               - sts:AssumeRole
           Path: "/"
-          Policies:
-            - 
-              PolicyName: "WorkMailMessageFlowReadOnly"
-              PolicyDocument:
-                Version: "2012-10-17"
-                Statement:
-                - 
-                  Effect: "Allow"
-                  Action:
-                  - "workmailmessageflow:GetRawMessageContent"
-                  Resource: "*"
           ManagedPolicyArns:
             - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
- 
+            - "arn:aws:iam::aws:policy/AmazonWorkMailMessageFlowReadOnlyAccess"
+
 Outputs:
       ChatBotArn:
               Value: !GetAtt WorkMailChatBotFunction.Arn

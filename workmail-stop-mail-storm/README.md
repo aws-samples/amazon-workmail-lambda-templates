@@ -77,3 +77,15 @@ aws cloudformation describe-stacks \
   --stack-name workmail-stop-mail-storm \
   --query 'Stacks[].Outputs[0].OutputValue'
 ```
+
+## Frequently Asked Questions
+### Where are the logs?
+You can find the logs in CloudWatch. For more information see [Accessing Amazon CloudWatch logs for AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html).
+
+### How do I obtain a real message id for my `event.json` file?
+1. Make sure your Lambda function prints out the message id from an event.
+2. Deploy your Lambda function and add the Lambda rule to your WorkMail organization.
+3. Send a test email from your WorkMail account.
+4. Check your CloudWatch logs for a printed message id.
+
+Note that you can access messages in transit for a maximum of one day.

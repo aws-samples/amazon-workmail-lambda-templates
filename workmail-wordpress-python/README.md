@@ -126,3 +126,7 @@ aws cloudformation describe-stacks \
   --stack-name $YOUR_STACK_NAME \
   --query 'Stacks[].Outputs[0].OutputValue'
 ```
+
+## Frequently Asked Questions
+### Where are the logs?
+You can find the logs in CloudWatch. For more information see [Accessing Amazon CloudWatch logs for AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html).

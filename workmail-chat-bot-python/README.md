@@ -12,13 +12,14 @@ This application integrates your email with a basic chat bot using webhooks. Spe
 
 You now have a working Lambda function that will be triggered by WorkMail based on the rule you created.
 
-## Customizing Your Lambda Function
-If you'd like to add support for a new chat application or further customize your Lambda function, open the [AWS Lambda Console](https://eu-west-1.console.aws.amazon.com/lambda/home?region=eu-west-1#/functions) to edit and test your Lambda function with the built-in code editor. For more information, see this [documentation](https://docs.aws.amazon.com/lambda/latest/dg/code-editor.html).
+If you'd like to add support for a new chat application or further customize your Lambda function, open the [AWS Lambda Console](https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions) to edit and test your Lambda function with the built-in code editor. For more information, see [Documentation](https://docs.aws.amazon.com/lambda/latest/dg/code-editor.html).
 
 For more advanced use cases, such as changing your CloudFormation template to create additional AWS resources that will support this application, follow the instructions below.
 
-## Local Development and Testing
+## Development
 Clone this repository from [GitHub](https://github.com/aws-samples/amazon-workmail-lambda-templates).
+
+We recommend creating and activating a virtual environment, for more information see [Creation of virtual environments](https://docs.python.org/3/library/venv.html).
 
 If you are not familiar with CloudFormation templates, see [Learn Template Basics](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/gettingstarted.templatebasics.html).
 
@@ -26,42 +27,50 @@ If you are not familiar with CloudFormation templates, see [Learn Template Basic
 2. Modify your Lambda function by changing [app.py](https://github.com/aws-samples/amazon-workmail-lambdas-templates/blob/master/workmail-chat-bot-python/src/app.py).
 3. Test your Lambda function locally:
     1. [Set up the SAM CLI](https://aws.amazon.com/serverless/sam/).
-    2. Configure environment variables at `tst/test_env_vars.json`.
+    2. Configure environment variables at `tst/env_vars.json`.
     3. Configure test event at `tst/event.json`.
     4. Invoke your Lambda function locally using:
-        `sam local invoke WorkMailChatBotFunction -e tst/event.json --env-vars tst/test_env_vars.json`
+    
+        `$ sam local invoke WorkMailChatBotFunction -e tst/event.json --env-vars tst/env_vars.json`
 
-### Test Message Ids
-This application uses a `messageId` passed to the Lambda function to retrieve the message content from WorkMail and post it to your blog. When testing, the `tst/event.json` file uses a mock messageId which does not exist. If you want to test with a real messageId, you can configure a WorkMail Email Flow Rule with the Lambda action using this Lambda, and send some emails to trigger it. The Lambda function will emit the messageId it receives from WorkMail in the logs, which you can then use in your test event data.
 
-Once you have validated that your Lambda function behaves as expected, you are ready to deploy this Lambda function.
+### Deployment
+If you develop using the AWS Lambda Console, then this section can be skipped.
 
-### Deploying
-This step bundles all your code and configuration to the given S3 bucket.
+Please create an S3 bucket if you do not have one yet, see [How do I create an S3 Bucket?](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-bucket.html).
+and check how to create a [Bucket Policy](https://docs.aws.amazon.com/serverlessrepo/latest/devguide/serverlessrepo-how-to-publish.html#publishing-application-through-cli).
+We refer to this bucket as `<Bucket-Name-For-Deployment>`.
+
+This step bundles all your code and configuration to the given S3 bucket. 
 
 ```bash
-sam package \
+$ sam package \
  --template-file template.yaml \
  --output-template-file packaged.yaml \
- --s3-bucket $YOUR_BUCKET_NAME
+ --s3-bucket <Bucket-Name-For-Deployment>
 ```
 
 This step updates your Cloud Formation stack to reflect the changes you made, which will in turn update changes made in the Lambda function.
 ```bash
-sam deploy \
+$ sam deploy \
+  --stack-name workmail-chat-bot \
   --template-file packaged.yaml \
-  --stack-name $YOUR_STACK_NAME \
   --parameter-overrides ChatClient=$YOUR_CHAT_CLIENT WebhookURL=$YOUR_WEBHOOK_URL ActiveWords=$OPTIONAL_ACTIVE_WORDS \
   --capabilities CAPABILITY_IAM
 ```
+
+Tip: surround $YOUR_WEBHOOK_URL with quotes.
+
 Your Lambda function is now deployed. You can now configure WorkMail to trigger this function.
 
-### Configure WorkMail
-To use this Lambda with WorkMail, follow the instructions at [WorkMail Console](https://console.aws.amazon.com/workmail/) to create a **RunLambda** [Email Flow Rule](https://docs.aws.amazon.com/workmail/latest/adminguide/create-email-rules.html). These steps will require the full ARN of your Lambda function, which can be retrieved by running the following:
+## Frequently Asked Questions
+### Where are the logs?
+You can find the logs in CloudWatch. For more information see [Accessing Amazon CloudWatch logs for AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html).
 
-```bash
-aws cloudformation describe-stacks \
-  --stack-name $YOUR_STACK_NAME \
-  --query 'Stacks[].Outputs[0].OutputValue'
-```
+### How do I obtain a real message id for my `event.json` file?
+1. Make sure your Lambda function prints out the message id from an event.
+2. Deploy your Lambda function and add the Lambda rule to your WorkMail organization.
+3. Send a test email from your WorkMail account.
+4. Check your CloudWatch logs for a printed message id.
 
+Note that you can access messages in transit for a maximum of one day.

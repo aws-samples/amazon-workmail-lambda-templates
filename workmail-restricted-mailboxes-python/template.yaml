@@ -28,8 +28,6 @@ Resources:
             Role:
               Fn::GetAtt: WorkMailRestrictedMailboxesFunctionRole.Arn
             Timeout: 10
-            Layers:
-                - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:1
             Environment:
                 Variables:
                     WORKMAIL_ORGANIZATION_ID:
