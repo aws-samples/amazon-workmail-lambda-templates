@@ -31,7 +31,7 @@ If you are not familiar with CloudFormation templates, see [Learn Template Basic
     3. Configure test event at `tst/event.json`.
     4. Invoke your Lambda function locally using:
     
-        `$ sam local invoke WorkMailChatBotFunction -e tst/event.json --env-vars tst/env_vars.json`
+        `sam local invoke WorkMailChatBotFunction -e tst/event.json --env-vars tst/env_vars.json`
 
 ### Test Message Ids
 This application uses a `messageId` passed to the Lambda function to retrieve the message content from WorkMail. When testing, the `tst/event.json` file uses a mock messageId which does not exist. If you want to test with a real messageId, you can configure a WorkMail Email Flow Rule with the Lambda action that uses the Lambda function created in **Setup**, and send some emails that will trigger the email flow rule. The Lambda function will emit the messageId it receives from WorkMail in the CloudWatch logs, which you can
@@ -49,7 +49,7 @@ We refer to this bucket as `<Bucket-Name-For-Deployment>`.
 This step bundles all your code and configuration to the given S3 bucket. 
 
 ```bash
-$ sam package \
+sam package \
  --template-file template.yaml \
  --output-template-file packaged.yaml \
  --s3-bucket <Bucket-Name-For-Deployment>
@@ -57,7 +57,7 @@ $ sam package \
 
 This step updates your Cloud Formation stack to reflect the changes you made, which will in turn update changes made in the Lambda function.
 ```bash
-$ sam deploy \
+sam deploy \
   --stack-name workmail-chat-bot \
   --template-file packaged.yaml \
   --parameter-overrides ChatClient=$YOUR_CHAT_CLIENT WebhookURL=$YOUR_WEBHOOK_URL ActiveWords=$OPTIONAL_ACTIVE_WORDS \
