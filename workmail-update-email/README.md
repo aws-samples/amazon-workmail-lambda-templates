@@ -40,7 +40,7 @@ If you are not familiar with CloudFormation templates, see [Learn Template Basic
     3. Configure test event at `tst/event.json`.
     4. Invoke your Lambda function locally using:
     
-        `sam local invoke WorkMailRestrictedMailboxesFunction -e tst/event.json --env-vars tst/env_vars.json`
+        `sam local invoke WorkMailUpdateEmailFunction -e tst/event.json --env-vars tst/env_vars.json`
 
 ### Test Message Ids
 This application uses a `messageId` passed to the Lambda function to retrieve the message content from WorkMail. When testing, the `tst/event.json` file uses a mock messageId which does not exist. If you want to test with a real messageId, you can configure a WorkMail Email Flow Rule with the Lambda action that uses the Lambda function created in **Setup**, and send some emails that will trigger the email flow rule. The Lambda function will emit the messageId it receives from WorkMail in the CloudWatch logs, which you can
