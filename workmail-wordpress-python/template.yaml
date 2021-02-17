@@ -22,7 +22,7 @@ Resources:
             Role:
               Fn::GetAtt: WorkMailBlogPosterFunctionRole.Arn
             Layers:
-                - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:1
+                - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:2
             Environment:
                 Variables:
                     BLOG_DOMAIN:
@@ -45,17 +45,8 @@ Resources:
           Path: "/"
           ManagedPolicyArns:
             - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+            - "arn:aws:iam::aws:policy/AmazonWorkMailMessageFlowReadOnlyAccess"
           Policies:
-            -
-              PolicyName: "allow-workmail-message-flow"
-              PolicyDocument:
-                Version: "2012-10-17"
-                Statement:
-                  -
-                    Effect: "Allow"
-                    Action:
-                      - "workmailmessageflow:GetRawMessageContent"
-                    Resource: "*"
             -
               PolicyName: "allow-secret-manager-get"
               PolicyDocument:

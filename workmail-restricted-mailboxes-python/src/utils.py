@@ -106,7 +106,7 @@ def get_env_var(name):
     """
     var = os.getenv(name)
     if not var:
-        error_msg = '{name} not set in environment. Please follow https://docs.aws.amazon.com/lambda/latest/dg/env_variables.html to set it.'
+        error_msg = f'{name} not set in environment. Please follow https://docs.aws.amazon.com/lambda/latest/dg/env_variables.html to set it.'
         logger.error(error_msg)
         raise ValueError(error_msg)
 
