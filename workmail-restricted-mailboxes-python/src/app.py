@@ -1,5 +1,6 @@
 import logging
 import utils
+import os
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -84,7 +85,7 @@ def restricted_mailboxes_handler(email_summary, context):
     logger.info(email_summary)
     organization_id = utils.get_env_var('WORKMAIL_ORGANIZATION_ID')
     restricted_group = utils.get_env_var('RESTRICTED_GROUP_NAME')
-    report_mailbox_address = utils.get_env_var('REPORT_MAILBOX_ADDRESS')
+    report_mailbox_address = os.getenv('REPORT_MAILBOX_ADDRESS')
 
     sender = email_summary['envelope']['mailFrom']
     recipients = email_summary['envelope']['recipients']
