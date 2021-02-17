@@ -7,9 +7,8 @@ Lambda function with all the necessary resources and permissions to access and m
 Add your own business logic to the Lambda function based on your use-case.
 For more information see [AWS WorkMail Lambda documentation](https://docs.aws.amazon.com/workmail/latest/adminguide/lambda.html)
 
-## Development
 
-### Using the AWS Lambda Console
+## Setup
 1. Deploy this application via [AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:489970191081:applications~workmail-hello-world-python)
 2. Open the [WorkMail Console](https://console.aws.amazon.com/workmail/) and create a **RunLambda** [Email Flow Rule](https://docs.aws.amazon.com/workmail/latest/adminguide/create-email-rules.html) that uses this Lambda function.
 
@@ -17,7 +16,7 @@ You now have a working Lambda function that will be triggered by WorkMail based 
 
 For more advanced use cases, such as changing your CloudFormation template to create additional AWS resources that will support this application, follow the instructions below.
 
-### Developing locally
+## Development
 Clone this repository from [GitHub](https://github.com/aws-samples/amazon-workmail-lambda-templates).
 
 We recommend creating and activating a virtual environment, for more information see [Creation of virtual environments](https://docs.python.org/3/library/venv.html).
@@ -25,7 +24,7 @@ We recommend creating and activating a virtual environment, for more information
 If you are not familiar with CloudFormation templates, see [Learn Template Basics](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/gettingstarted.templatebasics.html).
 
 1. Create additional resources for your application by changing [template.yaml](https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-hello-world-python/template.yaml). See this [documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-reference.html) for more details.
-2. Modify your Lambda function by changing [app.py](https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-hello-world-python/workmail-hello-world/app.py).
+2. Modify your Lambda function by changing [app.py](https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-hello-world-python/src/app.py).
 3. Test your Lambda function locally:
     1. [Set up the SAM CLI](https://aws.amazon.com/serverless/sam/).
     2. Configure environment variables at `tst/env_vars.json`.
