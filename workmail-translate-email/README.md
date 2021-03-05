@@ -1,7 +1,7 @@
 # Amazon WorkMail Translate Email
-This application translates a incoming or outgoing email into a language of your choice. 
+This application translates an incoming or outgoing email into a language of your choice. 
 
-Specifically, application automatically detects the language of a email and then translates subject and body into the destination language that you provide during setup. The translated body and subject is then appended to the original body and original subject of the email respectively.
+Specifically, the application automatically detects the language of an email and then translates subject and body into the destination language that you provide during setup. The translated body and subject is then appended to the original body and original subject of the email respectively.
 
 ![Screenshot](Image.png)
 
@@ -36,7 +36,7 @@ If you are not familiar with CloudFormation templates, see [Learn Template Basic
     3. Configure test event at `tst/event.json`.
     4. Invoke your Lambda function locally using:
     
-        `$ sam local invoke WorkMailTranslateEmailFunction -e tst/event.json --env-vars tst/env_vars.json`
+        `sam local invoke WorkMailTranslateEmailFunction -e tst/event.json --env-vars tst/env_vars.json`
 
 ### Test Message Ids
 This application uses a `messageId` passed to the Lambda function to retrieve the message content from WorkMail. When testing, the `tst/event.json` file uses a mock messageId which does not exist. If you want to test with a real messageId, you can configure a WorkMail Email Flow Rule with the Lambda action that uses the Lambda function created in **Setup**, and send some emails that will trigger the email flow rule. The Lambda function will emit the messageId it receives from WorkMail in the CloudWatch logs, which you can
