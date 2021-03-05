@@ -5,7 +5,7 @@ import logging
 import uuid
 import translate_helper
 from email import policy
-from bs4 import BeautifulSoup, NavigableString
+from bs4 import BeautifulSoup
 
 workmail_message_flow = boto3.client('workmailmessageflow')
 s3 = boto3.client('s3')
@@ -197,7 +197,7 @@ def update_workmail(message_id, content):
     content = {
         's3Reference': s3_reference
     }
-    response=workmail_message_flow.put_raw_message_content(messageId=message_id, content=content)
+    workmail_message_flow.put_raw_message_content(messageId=message_id, content=content)
     logger.info("Updated email sent to WorkMail successfully")
 
 def translate_email(downloaded_email, email_subject, email_language, text_body):

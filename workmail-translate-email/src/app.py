@@ -1,4 +1,3 @@
-import os
 import logging
 import utils
 import translate_helper
