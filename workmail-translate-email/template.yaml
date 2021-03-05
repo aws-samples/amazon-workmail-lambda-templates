@@ -1,0 +1,118 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description:
+    "WorkMail Translate Email"
+
+Parameters:
+    DestinationLanguage:
+        Type: String
+        MinLength: 1
+        MaxLength: 2
+        Description: "Code of the language to translate into. Refer: https://docs.aws.amazon.com/translate/latest/dg/what-is.html#what-is-languages"
+
+Resources:
+    WorkMailTranslateEmailFunction:
+        Type: AWS::Serverless::Function
+        DependsOn: WorkMailTranslatedMsgBucket 
+        Properties:
+            CodeUri: src/
+            Handler: app.translate_handler
+            Runtime: python3.7
+            Timeout: 10
+            Role:
+              Fn::GetAtt: WorkMailTranslateEmailFunctionRole.Arn
+            Layers:
+                - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:2
+            Environment:
+                Variables:
+                    DESTINATION_LANGUAGE:
+                        Ref: DestinationLanguage
+                    TRANSLATED_EMAIL_BUCKET:
+                        Ref: WorkMailTranslatedMsgBucket
+
+    WorkMailTranslateEmailFunctionRole:
+        Type: AWS::IAM::Role
+        Properties:
+          AssumeRolePolicyDocument:
+            Statement:
+            - Action:
+              - sts:AssumeRole
+              Effect: Allow
+              Principal:
+                Service:
+                - "lambda.amazonaws.com"
+            Version: "2012-10-17"
+          Path: "/"
+          ManagedPolicyArns:
+            - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+            - "arn:aws:iam::aws:policy/ComprehendReadOnly"
+            - "arn:aws:iam::aws:policy/TranslateReadOnly"            
+            - "arn:aws:iam::aws:policy/AmazonWorkMailMessageFlowFullAccess"
+          Policies:
+            -
+              PolicyName: "allow-s3-write"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "s3:PutObject"
+                    Resource:
+                        - Fn::Sub: "${WorkMailTranslatedMsgBucket.Arn}/*"
+
+    WorkMailPermissionToInvokeLambda:
+        Type: AWS::Lambda::Permission
+        DependsOn: WorkMailTranslateEmailFunction
+        Properties:
+            Action: lambda:InvokeFunction
+            FunctionName: !Ref WorkMailTranslateEmailFunction
+            Principal: !Sub 'workmail.${AWS::Region}.amazonaws.com'
+   
+    WorkMailTranslatedMsgBucket:
+        Type: AWS::S3::Bucket
+        DeletionPolicy: Retain
+        Properties:
+            BucketEncryption:
+                ServerSideEncryptionConfiguration:
+                    - ServerSideEncryptionByDefault:
+                        SSEAlgorithm: AES256
+            PublicAccessBlockConfiguration:
+                BlockPublicAcls : true
+                BlockPublicPolicy : true
+                IgnorePublicAcls : true
+                RestrictPublicBuckets : true
+            VersioningConfiguration:
+                Status: Enabled
+            LifecycleConfiguration:
+                Rules:
+                  - 
+                    Status: Enabled
+                    ExpirationInDays: 1 # Delete after 1 day
+                  - 
+                    Status: Enabled
+                    NoncurrentVersionExpirationInDays : 1 # Delete non current versions after 1 day
+
+    WorkMailTranslatedMsgBucketPolicy:
+        Type: AWS::S3::BucketPolicy
+        Properties:
+            Bucket:
+                Ref: WorkMailTranslatedMsgBucket
+            PolicyDocument:
+              Statement:
+                - Action:
+                    - "s3:GetObject"
+                    - "s3:GetObjectVersion"
+                  Effect: Allow
+                  Resource:
+                    - Fn::Sub: "${WorkMailTranslatedMsgBucket.Arn}/*"
+                  Condition:
+                    Bool:
+                        aws:SecureTransport:
+                            true
+                  Principal:
+                    Service: !Sub 'workmail.${AWS::Region}.amazonaws.com'
+
+Outputs:
+      TranslateEmailArn:
+              Value: !GetAtt WorkMailTranslateEmailFunction.Arn
