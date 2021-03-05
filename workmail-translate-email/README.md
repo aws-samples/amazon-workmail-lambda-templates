@@ -1,7 +1,7 @@
-# Amazon WorkMail Translaste Email
+# Amazon WorkMail Translate Email
 This application translates a incoming or outgoing email into a language of your choice. 
 
-Specifically, application automatically detects the language of a email and then translates subject and body into the destination language that you provide during setup. The translated body and subject is then appended to the original body and orginal subject of the email respectively.
+Specifically, application automatically detects the language of a email and then translates subject and body into the destination language that you provide during setup. The translated body and subject is then appended to the original body and original subject of the email respectively.
 
 ![Screenshot](Image.png)
 
