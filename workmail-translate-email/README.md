@@ -3,7 +3,7 @@ This application translates a incoming or outgoing email into a language of your
 
 Specifically, application automatically detects the language of a email and then translates subject and body into the destination language that you provide during setup. The translated body and subject is then appended to the original body and orginal subject of the email respectively.
 
-![Screenshot][Image.png]
+![Screenshot](Image.png)
 
 ## Development
 ### Using the AWS Lambda Console
