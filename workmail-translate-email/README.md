@@ -38,6 +38,12 @@ If you are not familiar with CloudFormation templates, see [Learn Template Basic
     
         `$ sam local invoke WorkMailTranslateEmailFunction -e tst/event.json --env-vars tst/env_vars.json`
 
+### Test Message Ids
+This application uses a `messageId` passed to the Lambda function to retrieve the message content from WorkMail. When testing, the `tst/event.json` file uses a mock messageId which does not exist. If you want to test with a real messageId, you can configure a WorkMail Email Flow Rule with the Lambda action that uses the Lambda function created in **Setup**, and send some emails that will trigger the email flow rule. The Lambda function will emit the messageId it receives from WorkMail in the CloudWatch logs, which you can
+then use in your test event data. For more information see [Accessing Amazon CloudWatch logs for AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html). Note that you can access messages in transit for a maximum of one day.
+
+Once you have validated that your Lambda function behaves as expected, you are ready to deploy this Lambda function.
+
 ### Deployment
 If you develop using the AWS Lambda Console, then this section can be skipped.
 
@@ -63,15 +69,3 @@ $ sam deploy \
   --capabilities CAPABILITY_IAM
 ```
 Your Lambda function is now deployed. You can now configure WorkMail to trigger this function.
-
-## Frequently Asked Questions
-### Where are the logs?
-You can find the logs in CloudWatch. For more information see [Accessing Amazon CloudWatch logs for AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html).
-
-### How do I obtain a real message id for my `event.json` file?
-1. Make sure your Lambda function prints out the message id from an event.
-2. Deploy your Lambda function and add the Lambda rule to your WorkMail organization.
-3. Send a test email from your WorkMail account.
-4. Check your CloudWatch logs for a printed message id.
-
-Note that you can access messages in transit for a maximum of one day.
