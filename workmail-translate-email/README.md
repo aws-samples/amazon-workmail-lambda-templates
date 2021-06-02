@@ -5,8 +5,7 @@ Specifically, the application automatically detects the language of an email and
 
 ![Screenshot](Image.png)
 
-## Development
-### Using the AWS Lambda Console
+## Setup
 1. Deploy this application via [AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:489970191081:applications~workmail-translate-email).
 2. Enter [language code](https://docs.aws.amazon.com/translate/latest/dg/what-is.html#what-is-languages) of the language you want your email to be translated into.
 3. Configure a synchronous Run Lambda rule over the Lambda function created in step 1. See [instructions.](https://docs.aws.amazon.com/workmail/latest/adminguide/lambda.html#synchronous-rules) 
@@ -21,7 +20,7 @@ For more information, see [documentation](https://docs.aws.amazon.com/lambda/lat
 
 For more advanced use cases, such as changing your CloudFormation template to create additional AWS resources that will support this application, follow the instructions below.
 
-## Developing locally
+## Development
 Clone this repository from [GitHub](https://github.com/aws-samples/amazon-workmail-lambda-templates).
 
 We recommend creating and activating a virtual environment, for more information see [Creation of virtual environments](https://docs.python.org/3/library/venv.html).
