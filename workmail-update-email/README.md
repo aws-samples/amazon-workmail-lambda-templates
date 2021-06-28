@@ -1,7 +1,7 @@
 # Amazon WorkMail Update Email
 This application enables you to add a customized disclaimer and footer in the body of emails as they are being sent or received.
 
-Specifically, email messages sent from an external email address to your organization are updated with a disclaimer and footer. The subject of the email is also prefixed with text **"External Email"**. These set of features ensure that users in your organization are aware of emails originating from outside your organization.
+Specifically, email messages sent from an external email address to your organization are updated with a disclaimer and footer. The subject of the email can also be prefixed with custom text, such as **"External Email"**. These set of features ensure that users in your organization are aware of emails originating from outside your organization.
 
 ![Screenshot](Image.png)
 
@@ -11,6 +11,7 @@ Both a disclaimer and footer are optional and are only added if a value is provi
 1. Deploy this application via [AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:489970191081:applications~workmail-update-email).
     1. [Optional] Enter a disclaimer message you'd like to prepend in the email body.
     2. [Optional] Enter a footer message you'd like to append in the email body.
+    2. [Optional] Enter a subject tag you'd like to prepend in the email subject, such as 'External '.
 2. Configure a synchronous Run Lambda rule over the Lambda function created in step 1. See [instructions.](https://docs.aws.amazon.com/workmail/latest/adminguide/lambda.html#synchronous-rules) 
 
 It is possible to configure both inbound and outbound email flow rules over the same Lambda function.
@@ -69,7 +70,7 @@ This step updates your CloudFormation stack to reflect the changes you made, whi
 sam deploy \
   --template-file packaged.yaml \
   --stack-name workmail-update-email \
-  --parameter-overrides Disclaimer=$YOUR_DISCLAIMER Footer=$YOUR_FOOTER \
+  --parameter-overrides Disclaimer=$YOUR_DISCLAIMER Footer=$YOUR_FOOTER SubjectTag=$YOUR_SUBJECT_TAG \
   --capabilities CAPABILITY_IAM
 ```
 Your Lambda function is now deployed. You can now configure WorkMail to trigger this function.

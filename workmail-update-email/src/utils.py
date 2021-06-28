@@ -16,6 +16,7 @@ disclaimer_html_template = """<table style="width:100%"><tr><td style="backgroun
 footer_html_template = """<table style="width:100%"><tr><td style="background-color:lightgray; solid black;">{}</td></tr></table>"""
 disclaimer_text = os.getenv('DISCLAIMER')
 footer_text = os.getenv('FOOTER')
+subject_tag = os.getend('SUBJECT_HEADER_TAG')
 
 def extract_domains(email_addresses):
     """
@@ -192,8 +193,8 @@ def update_email(downloaded_email, email_subject, flow_direction):
     """
     updated_email = update_email_body(downloaded_email)
     # Only update subject of an incoming email
-    if flow_direction == 'INBOUND':
-        new_subject =  f"[EXTERNAL EMAIL] {email_subject}"
+    if flow_direction == 'INBOUND' and subject_tag:
+        new_subject =  f"{subject_tag}{email_subject}"
         updated_email.replace_header('Subject', new_subject)
     logger.info("Email updated successfully")
     return updated_email

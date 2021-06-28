@@ -12,6 +12,10 @@ Parameters:
         Type: String
         Default: ''
         Description: "[Optional] Text that you'd like to append to the email body."
+    SubjectTag:
+        Type: String
+        Default: ''
+        Description: "[Optional] Text that you'd like to prepend to the email subject."
 
 Resources:
     WorkMailUpdateEmailFunction:
@@ -34,6 +38,8 @@ Resources:
                         Ref: Footer
                     UPDATED_EMAIL_BUCKET:
                         Ref: WorkMailUpdatedMsgBucket
+                    SUBJECT_TAG:
+                        Ref: SubjectTag
 
     WorkMailUpdateEmailFunctionRole:
         Type: AWS::IAM::Role
