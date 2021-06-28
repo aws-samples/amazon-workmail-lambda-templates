@@ -16,7 +16,7 @@ disclaimer_html_template = """<table style="width:100%"><tr><td style="backgroun
 footer_html_template = """<table style="width:100%"><tr><td style="background-color:lightgray; solid black;">{}</td></tr></table>"""
 disclaimer_text = os.getenv('DISCLAIMER')
 footer_text = os.getenv('FOOTER')
-subject_tag = os.getend('SUBJECT_HEADER_TAG')
+subject_tag = os.getenv('SUBJECT_HEADER_TAG')
 
 def extract_domains(email_addresses):
     """
