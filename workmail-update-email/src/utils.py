@@ -194,8 +194,8 @@ def update_email(downloaded_email, email_subject, flow_direction):
     updated_email = update_email_body(downloaded_email)
     # Only update subject of an incoming email
     if flow_direction == 'INBOUND' and subject_tag:
-        new_subject =  f"{subject_tag}{email_subject}"
-        logger.info("New subject: " + new_subject)
+        new_subject =  f"{subject_tag} {email_subject}"
+        logger.info("Message subject modified")
         updated_email.replace_header('Subject', new_subject)
     logger.info("Email updated successfully")
     return updated_email
