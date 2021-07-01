@@ -11,7 +11,7 @@ Both a disclaimer and footer are optional and are only added if a value is provi
 1. Deploy this application via [AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:489970191081:applications~workmail-update-email).
     1. [Optional] Enter a disclaimer message you'd like to prepend in the email body.
     2. [Optional] Enter a footer message you'd like to append in the email body.
-    2. [Optional] Enter a subject tag you'd like to prepend in the email subject, such as 'External '.
+    3. [Optional] Enter a subject tag you'd like to prepend in the email subject, such as 'External'.
 2. Configure a synchronous Run Lambda rule over the Lambda function created in step 1. See [instructions.](https://docs.aws.amazon.com/workmail/latest/adminguide/lambda.html#synchronous-rules) 
 
 It is possible to configure both inbound and outbound email flow rules over the same Lambda function.
