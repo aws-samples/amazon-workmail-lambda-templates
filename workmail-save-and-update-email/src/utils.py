@@ -4,6 +4,7 @@ import boto3
 import logging
 import uuid
 import re
+import json
 from email import policy
 from bs4 import BeautifulSoup
 
@@ -12,12 +13,15 @@ s3 = boto3.client('s3')
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+def get_env_var(env_var_name):
+    return os.getenv(env_var_name)
+
 # The following html templates controls color and structure of disclaimer and footer inserted into email body.
 disclaimer_html_template = """<table style="width:100%"><tr><td style="background-color:yellow;border:2px solid black;">{}</td></tr></table>"""
 footer_html_template = """<table style="width:100%"><tr><td style="background-color:lightgray; solid black;">{}</td></tr></table>"""
-disclaimer_text = os.getenv('DISCLAIMER')
-footer_text = os.getenv('FOOTER')
-subject_tag = os.getenv('SUBJECT_TAG')
+disclaimer_text = get_env_var('DISCLAIMER')
+footer_text = get_env_var('FOOTER')
+subject_tag = get_env_var('SUBJECT_TAG')
 
 def extract_domains(email_addresses):
     """
@@ -172,7 +176,7 @@ def update_workmail(message_id, content, key):
     -------
     None
     """
-    bucket = os.getenv('UPDATED_EMAIL_BUCKET')
+    bucket = get_env_var('UPDATED_EMAIL_BUCKET')
     if not bucket:
         raise ValueError("UPDATED_EMAIL_BUCKET not set in environment. Please follow https://docs.aws.amazon.com/lambda/latest/dg/env_variables.html to set it")
 
@@ -191,11 +195,10 @@ def save_email(content, key):
     """
     Uploads the original message to an S3 bucket in your account
     """
-    bucket = os.getenv('SAVED_EMAIL_BUCKET')
+    bucket = get_env_var('SAVED_EMAIL_BUCKET')
     if not bucket:
         raise ValueError("SAVED_EMAIL_BUCKET not set in environment. Please follow https://docs.aws.amazon.com/lambda/latest/dg/env_variables.html to set it")
 
-    logger.info("saved email bucket: " + bucket)
     s3.put_object(Body=content.as_bytes(), Bucket=bucket, Key=key)
     s3_reference = {
         'bucket': bucket,
@@ -204,8 +207,26 @@ def save_email(content, key):
     content = {
         's3Reference': s3_reference
     }
-    logger.info("Saved original email to S3 successfully")
+    logger.info(f"Saved original email at s3://{bucket}/{key} successfully")
 
+def save_email_metadata(content, key):
+    """
+    Uploads the original message to an S3 bucket in your account
+    """
+    bucket = get_env_var('SAVED_EMAIL_BUCKET')
+    if not bucket:
+        raise ValueError("SAVED_EMAIL_BUCKET not set in environment. Please follow https://docs.aws.amazon.com/lambda/latest/dg/env_variables.html to set it")
+    key = key + ".metadata"
+    s3.put_object(Body=json.dumps(content), Bucket=bucket, Key=key)
+    s3_reference = {
+        'bucket': bucket,
+        'key': key
+    }
+    content = {
+        's3Reference': s3_reference
+    }
+    logger.info(f"Saved original email metadata at s3://{bucket}/{key} successfully")
+    
 def update_email(downloaded_email, email_subject, flow_direction, key):
     """
     Updates the subject and body of the downloaded email.

@@ -76,7 +76,7 @@ This step updates your CloudFormation stack to reflect the changes you made, whi
 sam deploy \
   --template-file packaged.yaml \
   --stack-name workmail-save-and-update-email \
-  --parameter-overrides Disclaimer="Caution:\ External" Footer="Unmodified\ message\ saved:\ {key}" SubjectTag="[External]" SavedBucketExpiration="2" SaveInternalMessages="False" SaveExternalMessages="True" UpdateInternalMessages="False" UpdateExternalMessages="True" \
+  --parameter-overrides Disclaimer="Caution:\ External" Footer="Unmodified\ message\ saved:\ {key}" SubjectTag="[External]" SavedBucketExpiration="2" UpdateInternalMessages="False" UpdateExternalMessages="True" \
   --capabilities CAPABILITY_IAM
 ```
 Your Lambda function is now deployed. You can now configure WorkMail to trigger this function.

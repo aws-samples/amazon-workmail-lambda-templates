@@ -20,21 +20,19 @@ Parameters:
         Type: Number
         Default: '1'
         Description: "[Optional] Number of days to keep the saved messages in the S3 bucket. Defaults to 1."
-    SaveInternalMessages:
-        Type: String
-        Default: ''
-        Description: "[Optional] Determines if internal messages should be saved."
-    SaveExternalMessages:
-        Type: String
-        Default: 'True'
-        Description: "[Optional] Determines if external messages should be saved."
     UpdateInternalMessages:
         Type: String
-        Default: ''
+        Default: 'False'
+        AllowedValues:
+            - 'True'
+            - 'False'
         Description: "[Optional] Determines if internal messages should be updated."
     UpdateExternalMessages:
         Type: String
         Default: 'True'
+        AllowedValues:
+            - 'True'
+            - 'False'
         Description: "[Optional] Determines if external messages should be updated."
 
 Resources:
@@ -64,10 +62,6 @@ Resources:
                         Ref: WorkMailSavedMsgBucket
                     SUBJECT_TAG:
                         Ref: SubjectTag
-                    SAVE_INTERNAL_MESSAGES:
-                        Ref: SaveInternalMessages
-                    SAVE_EXTERNAL_MESSAGES:
-                        Ref: SaveExternalMessages
                     UPDATE_INTERNAL_MESSAGES:
                         Ref: UpdateInternalMessages
                     UPDATE_EXTERNAL_MESSAGES:

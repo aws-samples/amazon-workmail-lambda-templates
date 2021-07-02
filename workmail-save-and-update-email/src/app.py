@@ -63,7 +63,6 @@ def update_handler(event, context):
     email_from = event['envelope']['mailFrom']
     recipients = event['envelope']['recipients']
     message_id = event['messageId']
-    logger.info(f"message_id: {message_id}")
     key = str(uuid.uuid4())
 
     # Determine if the message is internal
@@ -72,20 +71,31 @@ def update_handler(event, context):
     else:
         internal_message = False
         
+    update_internal_msg = (utils.get_env_var('UPDATE_INTERNAL_MESSAGES') == 'True')
+    update_external_msg = (utils.get_env_var('UPDATE_EXTERNAL_MESSAGES') == 'True')
+    save_and_update_msg = False
+
+    if internal_message:
+        if update_internal_msg:
+            save_and_update_msg = True
+    else:
+        if update_external_msg:
+            save_and_update_msg = True
+
     try:
         # 1. Download email
         downloaded_email = utils.download_email(message_id)
-        # 2 Save original email
-        if ( not internal_message and os.getenv('SAVE_EXTERNAL_MESSAGES') == "True" ) or ( internal_message and os.getenv('SAVE_INTERNAL_MESSAGES') == "True" ):
+        # 2. Save and update original email
+        if save_and_update_msg:
+            # 3. Save the orginal, unmodified, email message source
             utils.save_email(downloaded_email, key)
-        # 3. Update email
-        if ( not internal_message and os.getenv('UPDATE_EXTERNAL_MESSAGES') == "True" ) or ( internal_message and os.getenv('UPDATE_INTERNAL_MESSAGES') == "True" ):
+            # 4. Save the event data (metadata) about the message so we know the envelope details that aren't in the message source
+            utils.save_email_metadata(event, key)
+            # 5. Update the email with the desired modifications
             updated_email = utils.update_email(downloaded_email, event['subject'], event['flowDirection'], key)
-            # 4. Send updated email back to WorkMail
             logger.info("Providing modified message for WorkMail")
             utils.update_workmail(message_id, updated_email, key)
         else:
-            # 4. Send downloaded email back to WorkMail
             logger.info("Preserving original message for WorkMail")
             utils.update_workmail(message_id, downloaded_email, key)
 
