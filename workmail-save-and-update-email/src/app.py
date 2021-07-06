@@ -2,6 +2,7 @@ import logging
 import utils
 import uuid
 import os
+import json
 from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
@@ -87,17 +88,18 @@ def update_handler(event, context):
         downloaded_email = utils.download_email(message_id)
         # 2. Save and update original email
         if save_and_update_msg:
+            saved_bucket = utils.get_env_var('SAVED_EMAIL_BUCKET')
+            updated_bucket = utils.get_env_var('UPDATED_EMAIL_BUCKET')
             # 3. Save the orginal, unmodified, email message source
-            utils.save_email(downloaded_email, key)
+            utils.save_email(saved_bucket, downloaded_email.as_bytes(), key + ".eml")
             # 4. Save the event data (metadata) about the message so we know the envelope details that aren't in the message source
-            utils.save_email_metadata(event, key)
+            utils.save_email(saved_bucket, json.dumps(event), key + ".json")
             # 5. Update the email with the desired modifications
             updated_email = utils.update_email(downloaded_email, event['subject'], event['flowDirection'], key)
             logger.info("Providing modified message for WorkMail")
-            utils.update_workmail(message_id, updated_email, key)
+            utils.update_workmail(message_id, updated_bucket, updated_email, key)
         else:
             logger.info("Preserving original message for WorkMail")
-            utils.update_workmail(message_id, downloaded_email, key)
 
     except ClientError as e:
         if e.response['Error']['Code'] == 'MessageFrozen':

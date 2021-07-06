@@ -1,9 +1,9 @@
 # Amazon WorkMail Save And Update Email
-This application will save the in-transet message to S3 before optional modification with customized disclaimers. The saved messages can be processed to validate signatures, extract attachments, or perform additional security analysis.
+This application will save the in-transit message to S3 before optional modification with customized disclaimers. The saved messages can be processed to validate signatures, extract attachments, or perform additional security analysis.
 
 Based on how you configure this solution, email messages are updated with a disclaimer and footer. The subject of the email can also be prefixed with custom text.
 
-The saved messages are stored in original, unmodified format, allowing for you to validate S/MIME, PGP, or DKIM signatures, which wouldn't otherwise be possible with the modified message.
+The saved messages are stored in original, unmodified format, allowing for you to validate S/MIME, PGP, or DKIM signatures, which wouldn't otherwise be possible with the modified message. The metadata about the message, including the SMTP sender and recipient information, is saved alongside the message source.
 
 This solution optionally allows you to template the S3 object key into the disclaimer text. This could be used as a support reference, or link to a web application that provides self-service capabilities for the user, such as to look up the S/MIME signature details.
 

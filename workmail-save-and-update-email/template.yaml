@@ -175,26 +175,6 @@ Resources:
                   Principal:
                     Service: !Sub 'workmail.${AWS::Region}.amazonaws.com'
 
-    WorkMailSavedMsgBucketPolicy:
-        Type: AWS::S3::BucketPolicy
-        Properties:
-            Bucket:
-                Ref: WorkMailSavedMsgBucket
-            PolicyDocument:
-              Statement:
-                - Action:
-                    - "s3:GetObject"
-                    - "s3:GetObjectVersion"
-                  Effect: Allow
-                  Resource:
-                    - Fn::Sub: "${WorkMailSavedMsgBucket.Arn}/*"
-                  Condition:
-                    Bool:
-                        aws:SecureTransport:
-                            true
-                  Principal:
-                    Service: !Sub 'workmail.${AWS::Region}.amazonaws.com'
-
 Outputs:
       UpdateEmailArn:
               Value: !GetAtt WorkMailSaveAndUpdateEmailFunction.Arn
