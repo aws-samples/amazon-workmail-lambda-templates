@@ -12,7 +12,7 @@ This solution optionally allows you to template the S3 object key into the discl
 Both a disclaimer and footer are optional and are only added if a value is provided during setup.
 
 ## Setup
-1. Deploy this application via [AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:489970191081:applications~workmail-update-email).
+1. Deploy this application via [AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:489970191081:applications~workmail-save-and-update-email).
     1. [Optional] Enter a disclaimer message you'd like to prepend in the email body.  Use {key} to template the S3 object key for the saved message.
     2. [Optional] Enter a footer message you'd like to append in the email body.  Use {key} to template the S3 object key for the saved message.
     3. [Optional] Enter a subject tag you'd like to prepend in the email subject, such as 'External'.
@@ -26,7 +26,7 @@ You now have a working Lambda function that will be triggered by WorkMail based 
 
 To further customize your Lambda function, open the [AWS Lambda Console](https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions) to edit and test your Lambda function with the built-in code editor.
 
-If you would like to customize the way your disclaimer and footer are formatted. You can make a change [here](https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-update-email/src/utils.py#L15). 
+If you would like to customize the way your disclaimer and footer are formatted. You can make a change [here](https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-save-and-update-email/src/utils.py#L15). 
 
 For more information, see [documentation](https://docs.aws.amazon.com/lambda/latest/dg/code-editor.html).
 
@@ -39,8 +39,8 @@ We recommend creating and activating a virtual environment, for more information
 
 If you are not familiar with CloudFormation templates, see [Learn Template Basics](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/gettingstarted.templatebasics.html).
 
-1. Create additional resources for your application by changing [template.yaml](https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-update-email/template.yaml). For more information, see [documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-reference.html).
-2. Modify your Lambda function by changing [app.py](https://github.com/aws-samples/amazon-workmail-lambdas-templates/blob/master/workmail-update-email/src/app.py).
+1. Create additional resources for your application by changing [template.yaml](https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-save-and-update-email/template.yaml). For more information, see [documentation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-reference.html).
+2. Modify your Lambda function by changing [app.py](https://github.com/aws-samples/amazon-workmail-lambdas-templates/blob/master/workmail-save-and-update-email/src/app.py).
 3. Test your Lambda function locally:
     1. [Set up the SAM CLI](https://aws.amazon.com/serverless/sam/).
     2. Configure environment variables at `tst/env_vars.json`.
