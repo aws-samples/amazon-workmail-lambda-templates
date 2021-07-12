@@ -127,7 +127,6 @@ Resources:
   SFCredentials:
     Type: 'AWS::SecretsManager::Secret'
     Properties:
-      Name: SalesforceCredentials
       Description: Salesforce credentials in JSON format
       SecretString: !Sub '{"username":"${Username}","password":"${Password}", "token":"${SecurityToken}"}'
 
