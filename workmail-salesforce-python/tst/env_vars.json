@@ -1,0 +1,6 @@
+{
+  "WorkMailSalesforceFunction": {
+      "SF_SECRET_NAME": "YOUR_SECRET_MANAGER_ARN",
+      "UPDATED_EMAIL_BUCKET": "YOUR_UPDATED_EMAIL_BUCKET"
+  }
+}
