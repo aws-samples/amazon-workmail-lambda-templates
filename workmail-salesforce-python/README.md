@@ -17,7 +17,7 @@ This application uses the [simple-salesforce](https://github.com/simple-salesfor
 1. Deploy this application via [AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:489970191081:applications~workmail-salesforce-python)
     1. Enter the username and password of your Salesforce account.
     2. Enter the security token of your Salesforce account. To create an security token, see [instructions](https://help.salesforce.com/articleView?id=sf.user_security_token.htm&type=5)
-2. Configure a synchronous Run Lambda rule for the Lambda function created in step 1, see [instructions.](https://docs.aws.amazon.com/workmail/latest/adminguide/lambda.html#synchronous-rules). Ensure that the value of Rule timeout in your synchronous Run Lambda rule is at least 1 minute. 
+2. Configure a synchronous Run Lambda rule for the Lambda function created in step 1, see [instructions](https://docs.aws.amazon.com/workmail/latest/adminguide/lambda.html#synchronous-rules). Ensure that the value of Rule timeout in your synchronous Run Lambda rule is at least 1 minute. 
 
 It is possible to configure both inbound and outbound email flow rules over the same Lambda function.
 
