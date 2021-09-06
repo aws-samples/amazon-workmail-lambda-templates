@@ -41,6 +41,7 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !Ref WorkMailSalesforceFunction
       Principal: !Sub 'workmail.${AWS::Region}.amazonaws.com'
+      SourceArn: !Sub 'arn:aws:workmail:${AWS::Region}:${AWS::AccountId}:organization/*'
 
   WorkMailSalesforceFunctionRole:
     Type: AWS::IAM::Role
@@ -119,8 +120,9 @@ Resources:
             Resource: !Sub "${UpdatedEmailS3Bucket.Arn}/*"
             Condition:
               Bool:
-                aws:SecureTransport:
-                  true
+                aws:SecureTransport: true
+              ArnLike:
+                aws:SourceArn: !Sub 'arn:aws:workmailmessageflow:${AWS::Region}:${AWS::AccountId}:message/*'
             Principal:
               Service: !Sub 'workmail.${AWS::Region}.amazonaws.com' # This policy enables WorkMail to read objects from your bucket
  

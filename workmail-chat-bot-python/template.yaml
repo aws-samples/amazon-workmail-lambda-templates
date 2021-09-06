@@ -45,6 +45,7 @@ Resources:
             Action: lambda:InvokeFunction
             FunctionName: !Ref WorkMailChatBotFunction
             Principal: !Sub 'workmail.${AWS::Region}.amazonaws.com'
+            SourceArn: !Sub 'arn:aws:workmail:${AWS::Region}:${AWS::AccountId}:organization/*'
 
     WorkMailChatBotFunctionRole:
         Type: AWS::IAM::Role
