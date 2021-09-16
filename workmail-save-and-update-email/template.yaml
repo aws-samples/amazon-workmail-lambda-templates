@@ -104,6 +104,7 @@ Resources:
             Action: lambda:InvokeFunction
             FunctionName: !Ref WorkMailSaveAndUpdateEmailFunction
             Principal: !Sub 'workmail.${AWS::Region}.amazonaws.com'
+            SourceArn: !Sub 'arn:aws:workmail:${AWS::Region}:${AWS::AccountId}:organization/*'
    
     WorkMailUpdatedMsgBucket:
         Type: AWS::S3::Bucket
@@ -172,6 +173,8 @@ Resources:
                     Bool:
                         aws:SecureTransport:
                             true
+                    ArnLike:
+                        aws:SourceArn: !Sub 'arn:aws:workmailmessageflow:${AWS::Region}:${AWS::AccountId}:message/*'
                   Principal:
                     Service: !Sub 'workmail.${AWS::Region}.amazonaws.com'
 

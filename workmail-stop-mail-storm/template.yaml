@@ -62,6 +62,7 @@ Resources:
             Action: lambda:InvokeFunction
             FunctionName: !Ref StopMailStormFunction
             Principal: !Sub 'workmail.${AWS::Region}.amazonaws.com'
+            SourceArn: !Sub 'arn:aws:workmail:${AWS::Region}:${AWS::AccountId}:organization/*'
 
 Outputs:
     StopMailStormFunctionArn:

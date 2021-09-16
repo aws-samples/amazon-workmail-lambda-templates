@@ -68,6 +68,7 @@ Resources:
             Action: lambda:InvokeFunction
             FunctionName: !Ref WorkMailTranslateEmailFunction
             Principal: !Sub 'workmail.${AWS::Region}.amazonaws.com'
+            SourceArn: !Sub 'arn:aws:workmail:${AWS::Region}:${AWS::AccountId}:organization/*'
    
     WorkMailTranslatedMsgBucket:
         Type: AWS::S3::Bucket
@@ -108,8 +109,9 @@ Resources:
                     - Fn::Sub: "${WorkMailTranslatedMsgBucket.Arn}/*"
                   Condition:
                     Bool:
-                        aws:SecureTransport:
-                            true
+                        aws:SecureTransport: true
+                    ArnLike:
+                        aws:SourceArn: !Sub 'arn:aws:workmailmessageflow:${AWS::Region}:${AWS::AccountId}:message/*'
                   Principal:
                     Service: !Sub 'workmail.${AWS::Region}.amazonaws.com'
 

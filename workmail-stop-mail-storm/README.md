@@ -33,6 +33,12 @@ Each CloudWatch action also adds a delay, usually less than one second. The acti
 
 The DescribeAlarms API used to verify CloudWatch alarms is limited to nine requests per second. If you need a higher threshold, you can [request a quota increase](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_limits.html).
 
+### Access Control
+By default, this serverless application and the resources that it creates can integrate with any [WorkMail Organization](https://docs.aws.amazon.com/workmail/latest/adminguide/organizations_overview.html) in your account, but the application and organization must be in the same region. To restrict that behavior you can either update the SourceArn attribute in [template.yaml](https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-stop-mail-storm/template.yaml)
+and then deploy the application by following the steps below **or** update the SourceArn attribute directly in the resource policy of each resource via their AWS Console after the deploying this application, [see example](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html). 
+
+For more information about the SourceArn attribute, [see this documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-sourcearn).
+
 ## Local development
 Cloning this repository from [GitHub](https://github.com/aws-samples/amazon-workmail-lambda-templates).
 
