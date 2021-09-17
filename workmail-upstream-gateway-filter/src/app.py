@@ -84,10 +84,19 @@ def upstream_gateway_handler(email_summary, context):
         ]}
 
     """
+    logger.info(email_summary)
     
     # get the environment variables containing the header name and regex to match
     filter_header_name = os.getenv('FILTER_HEADER_NAME')
+    if not filter_header_name:
+        error_msg = 'FILTER_HEADER_NAME not set in environment. Please follow https://docs.aws.amazon.com/lambda/latest/dg/env_variables.html to set it.'
+        logger.error(error_msg)
+        raise ValueError(error_msg)
     filter_header_regex = os.getenv('FILTER_HEADER_REGEX')
+    if not filter_header_regex:
+        error_msg = 'FILTER_HEADER_REGEX not set in environment. Please follow https://docs.aws.amazon.com/lambda/latest/dg/env_variables.html to set it.'
+        logger.error(error_msg)
+        raise ValueError(error_msg)
     regexp = re.compile(filter_header_regex)
 
     # get the value of the message header
@@ -96,11 +105,11 @@ def upstream_gateway_handler(email_summary, context):
     raw_msg = workmail.get_raw_message_content(messageId=msg_id)
     parsed_msg = email.message_from_bytes(raw_msg['messageContent'].read())
     filter_header_value = parsed_msg.get(filter_header_name)
-    logger.info(filter_header_value)
 
     flow_direction = email_summary['flowDirection']
     
-    if flow_direction == 'INBOUND':
+    if flow_direction == 'INBOUND' and filter_header_value:
+        logger.info(filter_header_name + ": " + filter_header_value)
         if regexp.search(filter_header_value):
             return {
                 'actions': [
@@ -120,6 +129,7 @@ def upstream_gateway_handler(email_summary, context):
                 ]
             }
                         
+    logger.info("Default action. Nothing to do.")
     return {
         'actions': [
             {

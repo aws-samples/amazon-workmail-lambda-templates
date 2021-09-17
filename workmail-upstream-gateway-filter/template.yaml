@@ -6,6 +6,7 @@ Description: >
 Parameters:
     FilterHeaderName:
         Type: String
+        Default: ''
         Description: "Name of the header which contains the pattern to match for spam filtering."
 
     FilterHeaderRegex:

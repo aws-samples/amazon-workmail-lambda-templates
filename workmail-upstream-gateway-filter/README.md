@@ -1,6 +1,6 @@
 # Amazon WorkMail Upstream Gateway Filter
 
-This application enables you to filter messages to Junk E-Mail for multiple recipeints based on the value of an email header added by an upstream email security gateway.
+This application enables you to filter messages to Junk E-Mail for multiple recipients based on the value of an email header added by an upstream email security gateway.
 
 Define the FILTER_HEADER_NAME and FILTER_HEADER_REGEX evironment variables to control which messages are filtered. If the value of the header matches the regular expression then the message will be filtered into the mailbox's Junk E-Mail folder.
 
@@ -38,6 +38,12 @@ This application uses a `messageId` passed to the Lambda function to retrieve th
 then use in your test event data. For more information see [Accessing Amazon CloudWatch logs for AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html). Note that you can access messages in transit for a maximum of one day.
 
 Once you have validated that your Lambda function behaves as expected, you are ready to deploy this Lambda function.
+
+## Access Control
+By default, this serverless application and the resources that it creates can integrate with any [WorkMail Organization](https://docs.aws.amazon.com/workmail/latest/adminguide/organizations_overview.html) in your account, but the application and organization must be in the same region. To restrict that behavior you can either update the SourceArn attribute in [template.yaml](https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-upstream-gateway-filter/template.yaml)
+and then deploy the application by following the steps below **or** update the SourceArn attribute directly in the resource policy of each resource via their AWS Console after the deploying this application, [see example](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html). 
+
+For more information about the SourceArn attribute, [see this documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-sourcearn).
 
 ### Deployment
 If you develop using the AWS Lambda Console, then this section can be skipped.
