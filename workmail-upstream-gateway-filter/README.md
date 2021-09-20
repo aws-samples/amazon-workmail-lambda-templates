@@ -2,7 +2,7 @@
 
 This application enables you to filter messages to Junk E-Mail for multiple recipients based on the value of an email header added by an upstream email security gateway.
 
-Define the FILTER_HEADER_NAME and FILTER_HEADER_REGEX evironment variables to control which messages are filtered. If the value of the header matches the regular expression then the message will be filtered into the mailbox's Junk E-Mail folder.
+Define the FILTER_HEADER_NAME and FILTER_HEADER_REGEX environment variables to control which messages are filtered. If the value of the header matches the regular expression then the message will be filtered into the mailbox's Junk E-Mail folder.
 
 ## Setup
 1. Deploy this application via [AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:489970191081:applications~workmail-upstream-gateway-filter).
