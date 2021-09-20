@@ -1,0 +1,6 @@
+{
+  "WorkMailUpstreamGatewayFilterFunction": {
+    "FILTER_HEADER_NAME": "MyOrg-Spam-Verdict", 
+    "FILTER_HEADER_REGEX": "yes"
+  }
+}
