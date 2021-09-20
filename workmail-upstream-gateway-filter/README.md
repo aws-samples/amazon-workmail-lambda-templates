@@ -8,7 +8,7 @@ Define the FILTER_HEADER_NAME and FILTER_HEADER_REGEX environment variables to c
 1. Deploy this application via [AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:489970191081:applications~workmail-upstream-gateway-filter).
     1. Enter the name of the email header that which the upstream email security gateway adds to incoming messages. 
     2. Enter the regular expression to match against the value of the header.
-2. Open the [WorkMail Console](https://console.aws.amazon.com/workmail/) and create a **RunLambda** [Email Flow Rule](https://docs.aws.amazon.com/workmail/latest/adminguide/lambda.html#synchronous-rules) that uses this Lambda function.
+2. Open the [WorkMail Console](https://console.aws.amazon.com/workmail/) and create a synchronous **RunLambda** [Email Flow Rule](https://docs.aws.amazon.com/workmail/latest/adminguide/lambda.html#synchronous-rules) that uses this Lambda function.
 
 To further customize your Lambda function, open the [AWS Lambda Console](https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions) to edit and test your Lambda function with the built-in code editor.
 
