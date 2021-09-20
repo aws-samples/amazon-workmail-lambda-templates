@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+    WorkMail Upstream Gateway Filter Lambda SAM
+
+Parameters:
+    FilterHeaderName:
+        Type: String
+        Default: ''
+        Description: "Name of the header which contains the pattern to match for spam filtering."
+
+    FilterHeaderRegex:
+        Type: String
+        Default: ''
+        Description: "Regular expression to match against the header's value. The message will be filtered to Junk E-Mail if it matches."
+
+Resources:
+    WorkMailUpstreamGatewayFilterFunction:
+        Type: AWS::Serverless::Function 
+        Properties:
+            CodeUri: src/
+            Handler: app.upstream_gateway_handler
+            Runtime: python3.7
+            Role:
+              Fn::GetAtt: WorkMailUpstreamGatewayFilterFunctionRole.Arn
+            Timeout: 10
+            Environment:
+                Variables:
+                    FILTER_HEADER_NAME:
+                        Ref: FilterHeaderName
+                    FILTER_HEADER_REGEX:
+                        Ref: FilterHeaderRegex
+
+    WorkMailUpstreamGatewayFilterFunctionRole:
+        Type: AWS::IAM::Role
+        Properties:
+          AssumeRolePolicyDocument:
+            Statement:
+            - Action:
+              - sts:AssumeRole
+              Effect: Allow
+              Principal:
+                Service:
+                - "lambda.amazonaws.com"
+            Version: "2012-10-17"
+          Path: "/"
+          ManagedPolicyArns:
+            - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+            - "arn:aws:iam::aws:policy/AmazonWorkMailMessageFlowReadOnlyAccess"
+
+    PermissionToCallLambdaAbove:
+        Type: AWS::Lambda::Permission
+        DependsOn: WorkMailUpstreamGatewayFilterFunction
+        Properties: 
+          Action: lambda:InvokeFunction
+          FunctionName: !Ref WorkMailUpstreamGatewayFilterFunction
+          Principal: !Sub 'workmail.${AWS::Region}.amazonaws.com'
+          SourceArn: !Sub 'arn:aws:workmail:${AWS::Region}:${AWS::AccountId}:organization/*'
+
+Outputs:
+   WorkMailUpstreamGatewayFilterFunctionArn:
+      Value: !GetAtt WorkMailUpstreamGatewayFilterFunction.Arn
