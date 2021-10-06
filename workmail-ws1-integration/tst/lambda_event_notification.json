@@ -1,0 +1,7 @@
+{
+    "httpMethod": "POST",
+    "headers": {
+        "Authorization": "WS1_AUTHORIZATION_HEADER"
+    },
+    "body" : "{\"DeviceId\":WS1_TEST_DEVICE_ID}"
+}
