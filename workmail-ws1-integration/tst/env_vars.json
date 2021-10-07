@@ -1,0 +1,6 @@
+{
+  "WorkMailWS1IntegrationFunction": {
+    "ORGANIZATION_ID": "YOUR_ORGANIZATION_ID",
+    "WS1CREDS_ID": "production/WS1Creds"
+  }
+}

@@ -1,0 +1,86 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  WorkMail WS1 Integration
+
+Parameters:
+  WorkMailOrganizationID:
+    Type: String
+    AllowedPattern: "^m-[0-9a-f]{32}$"
+    Description: "You can find your organization id using workmail/list-organizations AWS CLI"
+  WS1CredsID:
+    Type: String
+    Default: "production/WS1Creds"
+    Description: "WS1 secrets id (see https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-ws1-integration/README.md for more details)"
+
+Resources:
+  WorkMailWS1IntegrationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Timeout: 10
+      Role: !GetAtt WorkMailWS1IntegrationFunctionRole.Arn
+      Layers:
+        - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:7
+      Environment:
+        Variables:
+          ORGANIZATION_ID:
+            Ref: WorkMailOrganizationID
+          WS1CREDS_ID:
+            Ref: WS1CredsID
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+
+  WorkMailWS1IntegrationFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+        Version: "2012-10-17"
+      Path: "/"
+      Policies:
+        - PolicyName: "AllowSecretsManagerGetValue"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "secretsmanager:GetSecretValue"
+                Resource:
+                  Fn::Sub:
+                    - "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${SecretName}*"
+                    - { SecretName: !Ref WS1CredsID }
+        - PolicyName: "AllowWorkMailDeviceAccessOverrides"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "workmail:PutMobileDeviceAccessOverride"
+                  - "workmail:ListMobileDeviceAccessOverrides"
+                  - "workmail:DeleteMobileDeviceAccessOverride"
+                Resource:
+                  Fn::Sub:
+                    - "arn:aws:workmail:${AWS::Region}:${AWS::AccountId}:organization/${OrganizationId}*"
+                    - { OrganizationId: !Ref WorkMailOrganizationID }
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+
+Outputs:
+  WorkMailWS1IntegrationEndpoint:
+    Value:
+      Fn::Sub:
+        - "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+        - { ServerlessRestApi: !Ref ServerlessRestApi }
