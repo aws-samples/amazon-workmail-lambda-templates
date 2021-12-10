@@ -1,0 +1,6 @@
+{
+  "MfsmFunction": {
+    "STATE_MACHINE_ARN": "arn:aws:states:us-east-1:495766005304:stateMachine:WorkMailFLO",
+    "MACHINE_STATE_FOR_OUTPUT": ""
+  }
+}
