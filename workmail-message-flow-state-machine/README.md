@@ -11,6 +11,8 @@ To further customize your Lambda function, open the [AWS Lambda Console](https:/
 
 [Optional] Modify the MACHINE_STATE_FOR_OUTPUT environment variable to control which state from the Step Function execution should be returned back to the WorkMail Message Flow API. This allows you to build more asynchronous capabilities into your state machine without delaying message delivery.
 
+[Optional] Modify the WAIT_TIME_FOR_EXECUTION environment variable to be the number of seconds to wait after the state machine execution to look for a result. If the result is not found then it will be found in subsequent retries of the function. Use this only if your state machine is known to always execute quickly and the benefit of waiting is worth more than the extra cost of having the first function iteration running for a longer period of time.
+
 ## Modifying your Step Functions state machine
 
 Once you have finished the setup, send a test email message in to your WorkMail mailbox. 

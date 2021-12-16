@@ -13,7 +13,7 @@
         "address" :  "sender@domain.test"
     },
     "subject" : "Hello from Amazon WorkMail!",
-    "messageId": "1a7ddcef-5381-3fc9-b280-7342eee56b62",
+    "messageId": "00000000-0000-0000-0000-000000000000",
     "invocationId": "0000000000000000000000000000000000000000",
     "flowDirection": "INBOUND",
     "truncated": false

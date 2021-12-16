@@ -7,6 +7,10 @@ Parameters:
         Type: String
         Default: ''
         Description: "The name of the state within the Step Function state machine to return as output to the orchestrator Lambda function caller (optional)"
+    WaitTimeForExecution:
+        Type: Integer
+        Default: 1
+        Description: "Number of seconds to wait after the state machine execution to look for a result."
 
 Resources:
     MfsmFunction:

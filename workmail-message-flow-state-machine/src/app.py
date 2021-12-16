@@ -3,10 +3,10 @@ logging.getLogger("boto3").setLevel(logging.WARNING)
 logging.getLogger("botocore").setLevel(logging.WARNING)
 import os
 import boto3
-import email
-import re
 import time
 import json
+import sys
+from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -20,7 +20,13 @@ if not state_machine_arn:
 machine_state_for_output = os.getenv("MACHINE_STATE_FOR_OUTPUT")
 if not machine_state_for_output:
     error_msg = "'MACHINE_STATE_FOR_OUTPUT' not set in environment. The output of the Step Function state machine will be used."
-    logger.info(error_msg)
+    logger.debug(error_msg)
+    
+wait_time_for_execution = os.getenv("WAIT_TIME_FOR_EXECUTION")
+if not machine_state_for_output:
+    error_msg = "'WAIT_TIME_FOR_EXECUTION' not set in environment. The default will be used."
+    logger.debug(error_msg)
+    wait_time_for_execution = 0
     
 def orchestrator_handler(email_summary, context):
     """
@@ -99,70 +105,89 @@ def orchestrator_handler(email_summary, context):
         ]}
 
     """
-    logger.info(email_summary)
+    logger.debug(email_summary)
     client = boto3.client('stepfunctions')
-    start_execution_response = client.start_execution(
-        stateMachineArn=state_machine_arn,
-        input=json.dumps(email_summary)
-    )
-
-    logger.info(start_execution_response)
-
-    time.sleep(1) # TODO retry/wait logic should be configurable or determined from average/maximum history of execution run time, also it should retry if execution is not complete based on get_execution_history
-    retry_count = 0
-    while 1:
-        
-        state_machine_execution_history = client.get_execution_history(
-            executionArn=start_execution_response['executionArn']
-        )
-        logger.info(state_machine_execution_history['events'])
-        
-        for state_machine_event in state_machine_execution_history['events']:
+    state_machine_execution_arn = ''
             
-            if machine_state_for_output:
-                
-                if 'stateExitedEventDetails' in state_machine_event:
-                    this_state_name = state_machine_event['stateExitedEventDetails']['name']
-                    this_state_output = state_machine_event['stateExitedEventDetails']['output']
-                    if this_state_name == machine_state_for_output:
-                        if is_valid_workmail_output(this_state_output):
-                            return json.loads(this_state_output)
-                        else:
-                            # TODO
-                            logger.info("State output from {this_state_name} is not a valid response for WorkMail")
-                
-            elif state_machine_event['type'] == 'ExecutionSucceeded':
-                
-                if 'executionSucceededEventDetails' in state_machine_event:
-                    this_execution_output = state_machine_event['executionSucceededEventDetails']['output']
-                    if is_valid_workmail_output(this_execution_output):
-                        return json.loads(this_execution_output)
-                    else:
-                        logger.info("Execution output from the Step Function state machine is not a valid response for WorkMail")
+    # attempt to start the execution
+    try:
+        start_execution_response = client.start_execution(
+            name=email_summary['invocationId'],
+            stateMachineArn=state_machine_arn,
+            input=json.dumps(email_summary)
+        )
+    except ClientError as err:
         
-        if retry_count > 10:
-            break
-        time.sleep(10)
+        # expect to see ExecutionAlreadyExists on subsequent invocations
+        if err.response['Error']['Code'] == 'ExecutionAlreadyExists':
+            
+            # Find the executionArn (there is no way to find it by name)
+            # Note: this approach may not scale well for high volume mail flow
+            # TODO: Consider storing the state_machine_execution_arn in the message or in a DynamoDB table
+            nextToken = ''
+            while(1):
+                
+                args = {
+                    "stateMachineArn": state_machine_arn,
+                    "maxResults": 10, # This is a potentially tunable variable depending on mail flow volume
+                }
+                if nextToken:
+                    args['nextToken'] = nextToken
+                    
+                list_executions_response = client.list_executions(
+                    **args
+                );
+                logger.debug(list_executions_response)
+                
+                for execution in list_executions_response['executions']:
+                    if execution['name'] == email_summary['invocationId']:
+                        state_machine_execution_arn = execution['executionArn']
+                        
+                if 'nextToken' in list_executions_response:
+                    nextToken = list_executions_response['nextToken']
+                else:
+                    break
+                
+                # TODO: if we can easily get the date when the message arrived then we can skip all executions with startDate earlier than that
+                # logger.info(execution['startDate'])
+                    
+            # This is not expected to happen
+            if state_machine_execution_arn == '':
+                logger.info("Unable to find executionArn")
+                raise err
+        else:
+            logger.info("Unexpected error: %s" % err)
+            raise err
+    else:
         
-    logger.info("Default action. Unable to retrieve output from Step Function state machine state or execution.")
-    return {
-        'actions': [
-            {
-                'allRecipients': True,                  # For all recipients
-                'action' : { 'type' : 'DEFAULT' }       # let the email be sent normally
-            }
-        ]
-    }
+        # execution started during this invocation
+        logger.debug(start_execution_response)
+        state_machine_execution_arn = start_execution_response['executionArn']
         
-def is_valid_workmail_output(output):
-    if not 'actions' in output:
-        return False
-    # TODO: enhance output sanity checking
-    #for action in output['actions']:
-    #    if not 'action' in action:
-    #        return False
-    #    if not 'type' in action['action']:
-    #        return False
-    #    if not action['action']['type'] in ('BOUNCE', 'DROP', 'DEFAULT', 'BYPASS_SPAM_CHECK', 'MOVE_TO_JUNK'):
-    #        return False
-    return True
+        # Optional: if the state machine is known to execute quickly you can wait so that the response is returned during this invocatino of the function
+        time.sleep(wait_time_for_execution) 
+
+    # get the results from the execution    
+    state_machine_execution_history = client.get_execution_history(
+        executionArn=state_machine_execution_arn
+    )
+    logger.debug(state_machine_execution_history['events'])
+    
+    for state_machine_event in state_machine_execution_history['events']:
+        
+        if machine_state_for_output:
+            
+            if 'stateExitedEventDetails' in state_machine_event:
+                this_state_name = state_machine_event['stateExitedEventDetails']['name']
+                this_state_output = state_machine_event['stateExitedEventDetails']['output']
+                if this_state_name == machine_state_for_output:
+                    return json.loads(this_state_output)
+            
+        elif state_machine_event['type'] == 'ExecutionSucceeded':
+            
+            if 'executionSucceededEventDetails' in state_machine_event:
+                this_execution_output = state_machine_event['executionSucceededEventDetails']['output']
+                return json.loads(this_execution_output)
+    
+    logger.debug("Unable to retrieve output from Step Function state machine state or execution.")
+    raise Exception("State machine execution is not yet complete")
