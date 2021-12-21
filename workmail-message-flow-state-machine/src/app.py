@@ -28,6 +28,12 @@ if not machine_state_for_output:
     logger.debug(error_msg)
     wait_time_for_execution = 0
     
+execution_table = os.getenv("EXECUTION_TABLE")
+if not execution_table:
+    error_msg = "'EXECUTION_TABLE' not set in environment. Please follow https://docs.aws.amazon.com/lambda/latest/dg/env_variables.html to set it."
+    logger.error(error_msg)
+    raise ValueError(error_msg)
+    
 def orchestrator_handler(email_summary, context):
     """
     Message Flow State Machine function - invokes Step Function state machine and returns results based on execution output
@@ -106,13 +112,15 @@ def orchestrator_handler(email_summary, context):
 
     """
     logger.debug(email_summary)
-    client = boto3.client('stepfunctions')
+    stepfunctions = boto3.client('stepfunctions')
+    dynamodb = boto3.resource('dynamodb')
+    invocation_id = email_summary['invocationId']
     state_machine_execution_arn = ''
             
     # attempt to start the execution
     try:
-        start_execution_response = client.start_execution(
-            name=email_summary['invocationId'],
+        start_execution_response = stepfunctions.start_execution(
+            name=invocation_id,
             stateMachineArn=state_machine_arn,
             input=json.dumps(email_summary)
         )
@@ -121,40 +129,16 @@ def orchestrator_handler(email_summary, context):
         # expect to see ExecutionAlreadyExists on subsequent invocations
         if err.response['Error']['Code'] == 'ExecutionAlreadyExists':
             
-            # Find the executionArn (there is no way to find it by name)
-            # Note: this approach may not scale well for high volume mail flow
-            # TODO: Consider storing the state_machine_execution_arn in the message or in a DynamoDB table
-            nextToken = ''
-            while(1):
-                
-                args = {
-                    "stateMachineArn": state_machine_arn,
-                    "maxResults": 10, # This is a potentially tunable variable depending on mail flow volume
-                }
-                if nextToken:
-                    args['nextToken'] = nextToken
-                    
-                list_executions_response = client.list_executions(
-                    **args
-                );
-                logger.debug(list_executions_response)
-                
-                for execution in list_executions_response['executions']:
-                    if execution['name'] == email_summary['invocationId']:
-                        state_machine_execution_arn = execution['executionArn']
-                        
-                if 'nextToken' in list_executions_response:
-                    nextToken = list_executions_response['nextToken']
-                else:
-                    break
-                
-                # TODO: if we can easily get the date when the message arrived then we can skip all executions with startDate earlier than that
-                # logger.info(execution['startDate'])
-                    
-            # This is not expected to happen
+            # look up the executionArn in the DynamoDB table
+            state_machine_execution_arn = get_execution(execution_table, invocation_id, dynamodb)
+            
             if state_machine_execution_arn == '':
-                logger.info("Unable to find executionArn")
-                raise err
+                # edge case...
+                logger.info("Unable to find executionArn from DynamoDB. This could be because of too short of TTL on the item. Searching Step Function execution history.")
+                state_machine_execution_arn = search_for_execution(stepfunctions, state_machine_arn, invocation_id)
+                if state_machine_execution_arn == '':
+                    logger.info("Unable to find execution")
+                    raise err
         else:
             logger.info("Unexpected error: %s" % err)
             raise err
@@ -164,11 +148,14 @@ def orchestrator_handler(email_summary, context):
         logger.debug(start_execution_response)
         state_machine_execution_arn = start_execution_response['executionArn']
         
-        # Optional: if the state machine is known to execute quickly you can wait so that the response is returned during this invocatino of the function
+        # save the executionArn to DynamoDB table for the next Lambda invocation to reference
+        put_execution(execution_table, invocation_id, state_machine_execution_arn, dynamodb)
+        
+        # Optional: if the state machine is known to execute quickly you can wait so that the response is returned during this invocation of the function
         time.sleep(wait_time_for_execution) 
 
     # get the results from the execution    
-    state_machine_execution_history = client.get_execution_history(
+    state_machine_execution_history = stepfunctions.get_execution_history(
         executionArn=state_machine_execution_arn
     )
     logger.debug(state_machine_execution_history['events'])
@@ -191,3 +178,64 @@ def orchestrator_handler(email_summary, context):
     
     logger.debug("Unable to retrieve output from Step Function state machine state or execution.")
     raise Exception("State machine execution is not yet complete")
+
+def put_execution(tableName, invocationId, executionArn, dynamodb=None):
+    table = dynamodb.Table(tableName)
+    ttl = int( time.time() ) + 1800
+    response = table.put_item(
+       Item={
+            'InvocationId': invocationId,
+            'ExecutionArn': executionArn,
+            'TimeToLive': ttl,
+        }
+    )
+    return response
+    
+def get_execution(tableName, invocationId, dynamodb=None):
+    table = dynamodb.Table(tableName)
+    try:
+        response = table.get_item(Key={'InvocationId': invocationId})
+    except ClientError as e:
+        logger.info("Unable to query DynamoDB table")
+        raise e
+    if 'Item' in response:
+        if 'ExecutionArn' in response['Item']:
+            return response['Item']['ExecutionArn']
+        else:
+            logger.info("Unable to find ExecutionArn within the item")
+            return ''
+    else:
+        logger.info("Unable to find the invocatin in the DynamoDB table")
+        return ''
+        
+def search_for_execution(stepfunctions, state_machine_arn, invocation_id):
+    # Find the executionArn (there is no way to find it by name)
+    # Note: this approach may not scale well for high volume mail flow, but this function would only be called if the execution can't be found in the dynamoDB table
+    nextToken = ''
+    while(1):
+        
+        args = {
+            "stateMachineArn": state_machine_arn,
+            "maxResults": 10, # This is a potentially tunable variable depending on mail flow volume
+        }
+        if nextToken:
+            args['nextToken'] = nextToken
+            
+        list_executions_response = stepfunctions.list_executions(
+            **args
+        );
+        logger.debug(list_executions_response)
+        
+        for execution in list_executions_response['executions']:
+            if execution['name'] == invocation_id:
+                return execution['executionArn']
+                
+        if 'nextToken' in list_executions_response:
+            nextToken = list_executions_response['nextToken']
+        else:
+            break
+        
+        # TODO: if we can easily get the date when the message arrived then we can skip all executions with startDate earlier than that
+        # logger.info(execution['startDate'])
+        
+    return ''

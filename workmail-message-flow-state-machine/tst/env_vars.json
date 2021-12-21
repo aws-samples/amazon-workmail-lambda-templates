@@ -2,6 +2,7 @@
   "MfsmFunction": {
     "STATE_MACHINE_ARN": "",
     "MACHINE_STATE_FOR_OUTPUT": "",
-    "WAIT_TIME_FOR_EXECUTION": 1
+    "WAIT_TIME_FOR_EXECUTION": 1,
+    "EXECUTION_TABLE": ""
   }
 }

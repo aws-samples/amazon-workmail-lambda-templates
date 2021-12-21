@@ -8,14 +8,16 @@ Parameters:
         Default: ''
         Description: "The name of the state within the Step Function state machine to return as output to the orchestrator Lambda function caller (optional)"
     WaitTimeForExecution:
-        Type: Integer
+        Type: Number
         Default: 1
-        Description: "Number of seconds to wait after the state machine execution to look for a result."
+        Description: "Number of seconds to wait after the state machine starts execution to look for a result."
 
 Resources:
     MfsmFunction:
         Type: AWS::Serverless::Function 
-        DependsOn: MfsmStateMachine
+        DependsOn: 
+            - MfsmStateMachine
+            - MfsmExecutionTable
         Properties:
             CodeUri: src/
             Handler: app.orchestrator_handler
@@ -29,6 +31,8 @@ Resources:
                         Fn::GetAtt: MfsmStateMachine.Arn
                     MACHINE_STATE_FOR_OUTPUT:
                         Ref: MachineStateForOutput
+                    EXECUTION_TABLE:
+                        Ref: MfsmExecutionTable
 
     MfsmFunctionRole:
         Type: AWS::IAM::Role
@@ -46,8 +50,38 @@ Resources:
           ManagedPolicyArns:
             - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
             - "arn:aws:iam::aws:policy/AmazonWorkMailMessageFlowReadOnlyAccess"
-            - "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
 
+    MfsmFunctionDynamoDBPolicy:
+        Type: 'AWS::IAM::Policy'
+        Properties:
+          PolicyName: MfsmFunctionDynamoDBPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                    - dynamodb:PutItem
+                    - dynamodb:GetItem
+                Resource:
+                    Fn::GetAtt: MfsmExecutionTable.Arn
+          Roles:
+            - !Ref MfsmFunctionRole
+            
+    MfsmFunctionStateMachinePolicy:
+        Type: 'AWS::IAM::Policy'
+        Properties:
+          PolicyName: MfsmFunctionStateMachinePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                    - states:*
+                Resource:
+                    Fn::GetAtt: MfsmStateMachine.Arn
+          Roles:
+            - !Ref MfsmFunctionRole
+    
     MfsmFunctionPermission:
         Type: AWS::Lambda::Permission
         DependsOn: MfsmFunction
@@ -84,7 +118,6 @@ Resources:
                 }
           RoleArn:
             Fn::GetAtt: MfsmStateMachineRole.Arn
-          StateMachineName: MfsmStateMachine
               
     MfsmStateMachineRole:
         Type: AWS::IAM::Role
@@ -102,9 +135,27 @@ Resources:
           ManagedPolicyArns:
             - "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
             - "arn:aws:iam::aws:policy/service-role/AWSLambdaRole"
+            
+    MfsmExecutionTable:
+        Type: AWS::DynamoDB::Table
+        Properties: 
+          BillingMode: PAY_PER_REQUEST
+          AttributeDefinitions: 
+            -
+              AttributeName: InvocationId
+              AttributeType: S
+          KeySchema: 
+            -
+              AttributeName: InvocationId
+              KeyType: HASH
+          TimeToLiveSpecification: 
+            AttributeName: TimeToLive
+            Enabled: true
 
 Outputs:
    MfsmFunctionArn:
       Value: !GetAtt MfsmFunction.Arn
    MfsmStateMachineArn:
       Value: !GetAtt MfsmStateMachine.Arn
+   MfsmExecutionTableArn:
+      Value: !GetAtt MfsmExecutionTable.Arn
