@@ -13,6 +13,24 @@ To further customize your Lambda function, open the [AWS Lambda Console](https:/
 
 [Optional] Modify the WAIT_TIME_FOR_EXECUTION environment variable to be the number of seconds to wait after the state machine execution to look for a result. If the result is not found then it will be found in subsequent retries of the function. Use this only if your state machine is known to always execute quickly and the benefit of waiting is worth more than the extra cost of having the first function iteration running for a longer period of time.
 
+## How timeouts and retry logic are part of this solution
+
+If the Step Function state machine does not finish execution before WAIT_TIME_FOR_EXECUTION, 
+or the MACHINE_STATE_FOR_OUTPUT result is not available by that time, 
+then the state machine's executionArn is saved to a Dynamo DB table with a TTL of 240 minutes 
+and the Lambda function will stop running without signaling to WorkMail that the rule finished. 
+WorkMail will re-invoke the function repeatedly with an exponential backoff algorithm up until the `rule timeout` 
+until it gets a result. `rule timeout` is a required configuration when you set up the rule 
+and has a maximum value of 240 minutes. The Lambda function will look up the executionArn from the Dynamo DB table 
+for each subsequent invocation to ensure that the Step Function state machine is executed only once, and will
+obtain the result from the existing state machine's execution to then return back to WorkMail to complete the rule.
+If no result is returned back to WorkMail before 240 minutes then the rule's default action will be take effect.
+
+Depending on your use case, you may choose to raise the value of WAIT_TIME_FOR_EXECUTION if you know the state machine will 
+return in a predictable amount of time. Note that the Lambda function timeout is set to 60 seconds and you can only
+increase it to 15 minutes, which is shorter than the 240 minutes that WorkMail will retry the function. 
+Also, long running Lambda functions incur more costs. So, it is recommended that you keep WAIT_TIME_FOR_EXECUTION set to a low value.
+
 ## Modifying your Step Functions state machine
 
 Once you have finished the setup, send a test email message in to your WorkMail mailbox. 

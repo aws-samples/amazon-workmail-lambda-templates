@@ -142,6 +142,8 @@ def orchestrator_handler(email_summary, context):
         else:
             logger.info("Unexpected error: %s" % err)
             raise err
+    
+    # this code block runs if there was no exception
     else:
         
         # execution started during this invocation
@@ -181,7 +183,7 @@ def orchestrator_handler(email_summary, context):
 
 def put_execution(tableName, invocationId, executionArn, dynamodb=None):
     table = dynamodb.Table(tableName)
-    ttl = int( time.time() ) + 1800
+    ttl = int( time.time() ) + 14400 # items in this table will have a TTL of 240 minutes, which is the maximum for a WorkMail rule timeout
     response = table.put_item(
        Item={
             'InvocationId': invocationId,
@@ -205,7 +207,7 @@ def get_execution(tableName, invocationId, dynamodb=None):
             logger.info("Unable to find ExecutionArn within the item")
             return ''
     else:
-        logger.info("Unable to find the invocatin in the DynamoDB table")
+        logger.info("Unable to find the invocation in the DynamoDB table")
         return ''
         
 def search_for_execution(stepfunctions, state_machine_arn, invocation_id):
@@ -233,9 +235,10 @@ def search_for_execution(stepfunctions, state_machine_arn, invocation_id):
         if 'nextToken' in list_executions_response:
             nextToken = list_executions_response['nextToken']
         else:
-            break
+            return ''
         
         # TODO: if we can easily get the date when the message arrived then we can skip all executions with startDate earlier than that
+        # fetching the message and parsing the Date header is probably the best option here
         # logger.info(execution['startDate'])
         
     return ''
