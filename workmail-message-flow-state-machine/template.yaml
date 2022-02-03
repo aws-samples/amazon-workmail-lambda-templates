@@ -1,0 +1,161 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: "Message Flow State Machine - MFSM"
+
+Parameters:
+    MachineStateForOutput:
+        Type: String
+        Default: ''
+        Description: "The name of the state within the Step Function state machine to return as output to the orchestrator Lambda function caller (optional)"
+    WaitTimeForExecution:
+        Type: Number
+        Default: 1
+        Description: "Number of seconds to wait after the state machine starts execution to look for a result."
+
+Resources:
+    MfsmFunction:
+        Type: AWS::Serverless::Function 
+        DependsOn: 
+            - MfsmStateMachine
+            - MfsmExecutionTable
+        Properties:
+            CodeUri: src/
+            Handler: app.orchestrator_handler
+            Runtime: python3.7
+            Role:
+              Fn::GetAtt: MfsmFunctionRole.Arn
+            Timeout: 60
+            Environment:
+                Variables:
+                    STATE_MACHINE_ARN:
+                        Fn::GetAtt: MfsmStateMachine.Arn
+                    MACHINE_STATE_FOR_OUTPUT:
+                        Ref: MachineStateForOutput
+                    EXECUTION_TABLE:
+                        Ref: MfsmExecutionTable
+
+    MfsmFunctionRole:
+        Type: AWS::IAM::Role
+        Properties:
+          AssumeRolePolicyDocument:
+            Statement:
+            - Action:
+              - sts:AssumeRole
+              Effect: Allow
+              Principal:
+                Service:
+                - "lambda.amazonaws.com"
+            Version: "2012-10-17"
+          Path: "/"
+          ManagedPolicyArns:
+            - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+            - "arn:aws:iam::aws:policy/AmazonWorkMailMessageFlowReadOnlyAccess"
+
+    MfsmFunctionDynamoDBPolicy:
+        Type: 'AWS::IAM::Policy'
+        Properties:
+          PolicyName: MfsmFunctionDynamoDBPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                    - dynamodb:PutItem
+                    - dynamodb:GetItem
+                Resource:
+                    Fn::GetAtt: MfsmExecutionTable.Arn
+          Roles:
+            - !Ref MfsmFunctionRole
+            
+    MfsmFunctionStateMachinePolicy:
+        Type: 'AWS::IAM::Policy'
+        Properties:
+          PolicyName: MfsmFunctionStateMachinePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                    - states:*
+                Resource:
+                    Fn::GetAtt: MfsmStateMachine.Arn
+          Roles:
+            - !Ref MfsmFunctionRole
+    
+    MfsmFunctionPermission:
+        Type: AWS::Lambda::Permission
+        DependsOn: MfsmFunction
+        Properties: 
+          Action: lambda:InvokeFunction
+          FunctionName: !Ref MfsmFunction
+          Principal: !Sub 'workmail.${AWS::Region}.amazonaws.com'
+          SourceArn: !Sub 'arn:aws:workmail:${AWS::Region}:${AWS::AccountId}:organization/*'
+
+    MfsmStateMachine:
+        Type: AWS::StepFunctions::StateMachine
+        Properties: 
+          DefinitionString: |-
+               {
+                    "Comment": "WorkMail Message Flow State Machine",
+                    "StartAt": "DEFAULT Action",
+                    "States": {
+                        "DEFAULT Action": {
+                            "Comment": "A Pass state passes its input to its output, without performing work. Pass states are useful when constructing and debugging state machines.",
+                            "Type": "Pass",
+                            "Result": {
+                                "actions": [
+                                    {
+                                        "allRecipients": "True",
+                                        "action": {
+                                            "type": "DEFAULT"
+                                        }
+                                    }
+                                ]
+                            },
+                            "End": true
+                        }
+                    }
+                }
+          RoleArn:
+            Fn::GetAtt: MfsmStateMachineRole.Arn
+              
+    MfsmStateMachineRole:
+        Type: AWS::IAM::Role
+        Properties:
+          AssumeRolePolicyDocument:
+            Statement:
+            - Action:
+              - sts:AssumeRole
+              Effect: Allow
+              Principal:
+                Service:
+                - "states.amazonaws.com"
+            Version: "2012-10-17"
+          Path: "/"
+          ManagedPolicyArns:
+            - "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+            - "arn:aws:iam::aws:policy/service-role/AWSLambdaRole"
+            
+    MfsmExecutionTable:
+        Type: AWS::DynamoDB::Table
+        Properties: 
+          BillingMode: PAY_PER_REQUEST
+          AttributeDefinitions: 
+            -
+              AttributeName: InvocationId
+              AttributeType: S
+          KeySchema: 
+            -
+              AttributeName: InvocationId
+              KeyType: HASH
+          TimeToLiveSpecification: 
+            AttributeName: TimeToLive
+            Enabled: true
+
+Outputs:
+   MfsmFunctionArn:
+      Value: !GetAtt MfsmFunction.Arn
+   MfsmStateMachineArn:
+      Value: !GetAtt MfsmStateMachine.Arn
+   MfsmExecutionTableArn:
+      Value: !GetAtt MfsmExecutionTable.Arn
