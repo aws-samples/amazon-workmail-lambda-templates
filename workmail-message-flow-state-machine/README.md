@@ -4,34 +4,34 @@ This application enables you to use AWS Step Functions to orchestrate multiple A
 
 ## Setup
 1. Deploy this application via [AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:489970191081:applications~workmail-message-flow-state-machine).
-    1. [Optional] Enter `MachineStateForOutput` to specify state of the Step Function whose output should be returned back to WorkMail. By default, output of the succeeded execution event is used.
-    2. [Optional] Enter `WaitTimeForExecution` to specify number of seconds to wait for result after the state machine is first invoked, useful when step function finishes within few seconds. By default, value is 1 second.
+    1. [Optional] Enter `MachineStateForOutput` to specify the state of the Step Function whose output should be returned back to WorkMail. By default, the output of the succeeded execution event is used.
+    2. [Optional] Enter `WaitTimeForExecution` to specify the number of seconds to wait for the result after the state machine is first invoked, useful when the step function finishes within few seconds. By default, the value is 1 second.
 2. Open the [WorkMail Console](https://console.aws.amazon.com/workmail/) and create a synchronous **RunLambda** [Email Flow Rule](https://docs.aws.amazon.com/workmail/latest/adminguide/lambda.html#synchronous-rules) that uses this Lambda function.
-    1. `Rule timeout` must be more than the maximum duration of the step function execution. See [this section](#How timeouts and retry logic are part of this solution) for more details.
+    1. `Rule timeout` must be more than the maximum duration of the Step Function execution. See [this section](#How timeouts and retry logic are part of this solution) for more details.
 3. Open the [AWS Step Functions Console](https://console.aws.amazon.com/states/) and modify the new state machine with your business logic. 
 
 To further customize your Lambda function, open the [AWS Lambda Console](https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions) to edit and test your Lambda function with the built-in code editor.
 
 `MachineStateForOutput` allows you to build more asynchronous capabilities into your state machine without delaying message delivery.
 
-Use `WaitTimeForExecution` only if your state machine is known to always execute within few seconds so that the benefit of waiting is worth more than the delay caused due to retury logic.
+Use `WaitTimeForExecution` only if your state machine is known to always execute within a few seconds so that the benefit of waiting is worth more than the delay caused due to retry logic.
 
 ## How timeouts and retry logic are part of this solution
 
-If the Step Function state machine does not finish execution before `WaitTimeForExecution` or the `MachineStateForOutput` result is not available by that time, then the state machine's executionArn is saved to a Dynamo DB table with a TTL of 240 minutes (maximum value of `Rule timeout`) and the Lambda function will return an error signaling to WorkMail to retry again later. 
+If the Step Function state machine does not finish execution before `WaitTimeForExecution` or the `MachineStateForOutput` result is not available by that time, then the state machine's executionArn is saved to a DynamoDB table with a TTL of 240 minutes (maximum value of `Rule timeout`) and the Lambda function will return an error signaling to WorkMail to retry again later. 
 
-WorkMail will keep re-invoking the function until it gets a result or `Rule timeout` is reached. Upon each subsequent invocation lambda function will look up the executionArn of the state machine from the Dynamo DB table and check for result. If no result is returned back to WorkMail before 240 minutes then the rule's default action will take effect.
+WorkMail will keep re-invoking the function until it gets a result or `Rule timeout` is reached. Upon each subsequent invocation Lambda function will look up the executionArn of the state machine from the DynamoDB table and check for result. If no result is returned back to WorkMail before 240 minutes then the rule's default action will take effect.
 
-Depending on your use case, you may choose to raise the value of `WaitTimeForExecution` if you know the state machine will return in a predictable amount of time of in order of seconds since long running Lambda functions incur costs.
+Depending on your use case, you may choose to raise the value of `WaitTimeForExecution` if you know the state machine will return in a predictable amount of time in order of seconds since long running Lambda functions incur costs.
 
 ## Modifying your Step Functions state machine
 
-Once you have finished the setup, send a test email message in to your WorkMail mailbox. From the Step Functions console you will see a successful execution. 
+Once you have finished the setup, send a test email in to your WorkMail mailbox. From the Step Functions console you will see a successful execution. 
 In the execution, expand ExecutionSucceeded to see the output from the state machine's execution; this output was used by the Lambda function to return to the WorkMail Message Flow API.
 
-You can configure the state machine to return different output based on the logic you want to define. Since the input to the state machine is the same as the input that was sent to the WorkMail Message Flow Lambda, you can pass this input into additional states within your state machine that execute other WorkMail functions; which you can subsequently use the results from other functions to return back via the execution output.
+You can configure the state machine to return a different output based on the logic you want to define. Since the input to the state machine is the same as the input that was sent to the WorkMail Message Flow Lambda, you can pass this input into additional states within your state machine that execute other WorkMail functions; from which you can use the results from of other functions to return back via the execution output.
 
-Finally, as described above, you can set the `MachineStateForOutput` to make lambda function look for the output from a specific state of your state machine. This allows your state machine to quickly delivery a final result back to the asynchronous message flow while allowing your state machine to execute additional states without delaying message delivery.
+Finally, as described above, you can set the `MachineStateForOutput` to make the Lambda function look for the output from a specific state of your state machine. This allows your state machine to quickly delivery a final result back to the asynchronous message flow while allowing your state machine to execute additional states without delaying message delivery.
 
 ### Customizing Your Lambda Function
 

@@ -10,7 +10,7 @@ Parameters:
     WaitTimeForExecution:
         Type: Number
         Default: 1
-        Description: "[Optional] Number of seconds to wait after the state machine starts execution to look for a result, useful when step function finishes within few seconds"
+        Description: "[Optional] Number of seconds to wait after the state machine starts execution to look for a result, useful when the step function finishes within few seconds"
 
 Resources:
     MfsmFunction:
