@@ -6,11 +6,11 @@ Parameters:
     MachineStateForOutput:
         Type: String
         Default: ''
-        Description: "The name of the state within the Step Function state machine to return as output to the orchestrator Lambda function caller (optional)"
+        Description: "[Optional] The name of the state within the Step Function state machine to return as output to the orchestrator Lambda function caller"
     WaitTimeForExecution:
         Type: Number
         Default: 1
-        Description: "Number of seconds to wait after the state machine starts execution to look for a result."
+        Description: "[Optional] Number of seconds to wait after the state machine starts execution to look for a result, useful when the step function finishes within few seconds"
 
 Resources:
     MfsmFunction:
@@ -33,6 +33,8 @@ Resources:
                         Ref: MachineStateForOutput
                     EXECUTION_TABLE:
                         Ref: MfsmExecutionTable
+                    WAIT_TIME_FOR_EXECUTION:
+                        Ref: WaitTimeForExecution
 
     MfsmFunctionRole:
         Type: AWS::IAM::Role
