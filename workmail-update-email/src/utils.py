@@ -102,12 +102,12 @@ def update_email_body(parsed_email):
             content_type = part.get_content_type()
             content_disposition = str(part.get_content_disposition())
             if content_type == 'text/plain' and 'attachment' not in content_disposition:
-                transfer_encoding = part['Content-Transfer-Encoding']
+                transfer_encoding = part['Content-Transfer-Encoding'].lower()
                 text_charset = part.get_content_charset()
                 new_text_body = update_text_content(part)
                 part.set_content(new_text_body, "plain", charset=text_charset, cte=transfer_encoding)
             elif content_type == 'text/html' and 'attachment' not in content_disposition:
-                transfer_encoding = part['Content-Transfer-Encoding']
+                transfer_encoding = part['Content-Transfer-Encoding'].lower()
                 html_charset = part.get_content_charset()
                 new_html_body = update_html_content(part)
                 if new_html_body is not None:
@@ -115,7 +115,7 @@ def update_email_body(parsed_email):
                     part.set_charset(html_charset)
     else:
         # Its a plain email with text/plain body
-        transfer_encoding = parsed_email['Content-Transfer-Encoding']
+        transfer_encoding = parsed_email['Content-Transfer-Encoding'].lower()
         text_charset = parsed_email.get_content_charset()
         new_text_body = update_text_content(parsed_email)
         parsed_email.set_content(new_text_body, "plain", charset=text_charset, cte=transfer_encoding)
