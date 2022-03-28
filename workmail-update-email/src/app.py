@@ -61,7 +61,7 @@ def update_handler(event, context):
     email_from = event['envelope']['mailFrom']
     recipients = event['envelope']['recipients']
     message_id = event['messageId']
-    logger.info(f"Received email with message ID {message_id}")
+
     # Do nothing for emails that are sent or received with in WorkMail organization
     if utils.extract_domains([email_from]) != utils.extract_domains(recipients):
         try:
