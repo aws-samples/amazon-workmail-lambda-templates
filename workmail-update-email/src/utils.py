@@ -127,6 +127,10 @@ def update_email_body(parsed_email):
                 (html_charset, transfer_encoding) = get_charset_and_cte(part)
                 new_html_body = update_html_content(part)
                 if new_html_body is not None:
+                    if html_charset.lower() == 'utf-8' and transfer_encoding == '7bit':
+                        # See: https://github.com/aws-samples/amazon-workmail-lambda-templates/issues/17
+                        transfer_encoding = 'quoted-printable'
+
                     part.set_content(new_html_body.encode(html_charset), "text", "html", cte=transfer_encoding)
                     part.set_charset(html_charset)
     else:
