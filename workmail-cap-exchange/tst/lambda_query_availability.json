@@ -1,0 +1,17 @@
+{
+    "requester": {
+        "email": "user1@internal.example.com",
+        "userName": "user1",
+        "organization": "m-0123456789abcdef0123456789abcdef",
+        "userId": "S-1-5-18",
+        "origin": "127.0.0.1"
+    },
+    "mailboxes": [
+        "user2@external.example.com",
+        "unknown@internal.example.com"
+    ],
+    "window": {
+        "startDate": "2021-05-04T00:00:00+00:00",
+        "endDate": "2021-05-06T00:00:00+00:00"
+    }
+}
