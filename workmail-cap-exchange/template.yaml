@@ -25,7 +25,7 @@ Resources:
       CodeUri: src/
       Handler: app.lambda_handler
       Runtime: python3.9
-      Timeout: 30
+      Timeout: 20
       Role: !GetAtt WorkMailCapExchangeFunctionRole.Arn
       Layers:
         - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:9
