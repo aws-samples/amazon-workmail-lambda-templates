@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  WorkMail CAP Exchange
+
+Parameters:
+  WorkMailOrganizationID:
+    Type: String
+    AllowedPattern: "^m-[0-9a-f]{32}$"
+    Description: "You can find your organization id using workmail/list-organizations AWS CLI"
+  ExchangeSecretsID:
+    Type: String
+    Default: "production/ExchangeSecrets"
+    Description: "Exchange secrets (see https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-cap-exchange/README.md for more details)"
+  EventLoggingEnabled:
+    Type: String
+    Default: "True"
+    AllowedValues: ["True", "False"]
+    Description: "Whether event logging is enabled. When set to False events and exception messages are never logged."
+
+Resources:
+  WorkMailCapExchangeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 20
+      Role: !GetAtt WorkMailCapExchangeFunctionRole.Arn
+      Layers:
+        - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:9
+      Environment:
+        Variables:
+          EXCHANGE_SECRETS_ID:
+            Ref: ExchangeSecretsID
+          EVENT_LOGGING_ENABLED:
+            Ref: EventLoggingEnabled
+
+  WorkMailCapExchangeFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt WorkMailCapExchangeFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: !Sub availability.workmail.${AWS::Region}.amazonaws.com
+      SourceArn:
+        Fn::Sub:
+          - "arn:aws:workmail:${AWS::Region}:${AWS::AccountId}:organization/${OrganizationId}"
+          - { OrganizationId: !Ref WorkMailOrganizationID }
+
+  WorkMailCapExchangeFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+        Version: "2012-10-17"
+      Path: "/"
+      Policies:
+        - PolicyName: "AllowSecretsManagerGetValue"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "secretsmanager:GetSecretValue"
+                Resource:
+                  Fn::Sub:
+                    - "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${SecretName}*"
+                    - { SecretName: !Ref ExchangeSecretsID }
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+
+Outputs:
+  WorkMailCapExchangeFunctionName:
+    Value: !Ref WorkMailCapExchangeFunction

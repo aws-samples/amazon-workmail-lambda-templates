@@ -1,0 +1,6 @@
+{
+    "WorkMailCapExchangeFunction": {
+        "EXCHANGE_SECRETS_ID": "production/ExchangeSecrets",
+        "EVENT_LOGGING_ENABLED": "True"
+    }
+}
