@@ -17,7 +17,7 @@ This application uses the [simple-salesforce](https://github.com/simple-salesfor
 1. Deploy this application via [AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:489970191081:applications~workmail-salesforce-python)
     1. Enter the username and password of your Salesforce account.
     2. Enter the security token of your Salesforce account. To create an security token, see [instructions](https://help.salesforce.com/articleView?id=sf.user_security_token.htm&type=5)
-2. Configure a synchronous Run Lambda rule for the Lambda function created in step 1, see [instructions](https://docs.aws.amazon.com/workmail/latest/adminguide/lambda.html#synchronous-rules). Ensure that the value of Rule timeout in your synchronous Run Lambda rule is at least 1 minute. 
+2. Configure a synchronous Run Lambda rule for the Lambda function created in step 1, see [instructions](https://docs.aws.amazon.com/workmail/latest/adminguide/lambda.html#synchronous-rules). Ensure that the value of Rule timeout in your synchronous Run Lambda rule is at least 1 minute.
 
 It is possible to configure both inbound and outbound email flow rules over the same Lambda function.
 
@@ -31,7 +31,7 @@ For more advanced use cases, such as changing your CloudFormation template to cr
 
 ## Access Control
 By default, this serverless application and the resources that it creates can integrate with any [WorkMail Organization](https://docs.aws.amazon.com/workmail/latest/adminguide/organizations_overview.html) in your account, but the application and organization must be in the same region. To restrict that behavior you can either update the SourceArn attribute in [template.yaml](https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-salesforce-python/template.yaml)
-and then deploy the application by following the steps below **or** update the SourceArn attribute directly in the resource policy of each resource via their AWS Console after the deploying this application, [see example](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html). 
+and then deploy the application by following the steps below **or** update the SourceArn attribute directly in the resource policy of each resource via their AWS Console after the deploying this application, [see example](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html).
 
 For more information about the SourceArn attribute, [see this documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-sourcearn).
 
@@ -66,6 +66,10 @@ and check how to create a [Bucket Policy](https://docs.aws.amazon.com/serverless
 We refer to this bucket as `<Bucket-Name-For-Deployment>`.
 
 This step bundles all your code and configuration to the given S3 bucket. 
+
+```bash
+sam build
+```
 
 ```bash
 sam package \

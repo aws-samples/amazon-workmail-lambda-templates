@@ -37,7 +37,7 @@ The high level overview:
    --lambda-provider 'LambdaArn=<ARN_FROM_STEP_3>'
    ```
 
-You now have a working Lambda function that will handle user availabilty requests.
+You now have a working Lambda function that will handle user availability requests.
 
 If you'd like to customize your Lambda function, open the [AWS Lambda Console](https://console.aws.amazon.com/lambda) to edit and test your Lambda 
 function with the built-in code editor. For more information, see [Documentation](https://docs.aws.amazon.com/lambda/latest/dg/code-editor.html).
@@ -77,6 +77,10 @@ sam local invoke WorkMailCapExchangeFunction -e tst/lambda_query_availability.js
 ```
 
 ### Deployment
+
+```shell
+sam build
+```
 
 ```shell
 sam deploy --guided

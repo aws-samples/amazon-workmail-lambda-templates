@@ -19,11 +19,9 @@ Resources:
     Properties:
       CodeUri: src/
       Handler: app.lambda_handler
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 10
       Role: !GetAtt WorkMailWS1IntegrationFunctionRole.Arn
-      Layers:
-        - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:7
       Environment:
         Variables:
           ORGANIZATION_ID:

@@ -20,16 +20,25 @@ Parameters:
         Description: "Comma-separated list of words which will trigger a message to the chat channel if found in an email subject line. Leave blank to receive messages for all emails"  
 
 Resources:
+    WorkMailChatBotDependencyLayer:
+      Type: AWS::Serverless::LayerVersion
+      Properties:
+        ContentUri: dependencies/
+        CompatibleRuntimes:
+        - python3.12
+      Metadata:
+        BuildMethod: python3.12
+
     WorkMailChatBotFunction:
         Type: AWS::Serverless::Function 
         Properties:
             CodeUri: src/
             Handler: app.chat_handler
-            Runtime: python3.7
+            Runtime: python3.12
             Timeout: 10
             Role: !GetAtt WorkMailChatBotFunctionRole.Arn
             Layers:
-                - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:2
+                - !Ref WorkMailChatBotDependencyLayer
             Environment:
                 Variables:
                     CHAT_CLIENT:

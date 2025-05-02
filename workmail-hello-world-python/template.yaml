@@ -4,16 +4,25 @@ Description: >
   WorkMail Hello World Lambda SAM
 
 Resources:
+  WorkMailHelloWorldDependencyLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: dependencies/
+      CompatibleRuntimes:
+        - python3.12
+    Metadata:
+      BuildMethod: python3.12
+
   WorkMailHelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
       Handler: app.lambda_handler
-      Runtime: python3.7
+      Runtime: python3.12
       Timeout: 10
       Role: !GetAtt WorkMailHelloWorldFunctionRole.Arn
       Layers:
-        - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:2
+        - !Ref WorkMailHelloWorldDependencyLayer
       Environment:
         Variables:
           UPDATED_EMAIL_S3_BUCKET:

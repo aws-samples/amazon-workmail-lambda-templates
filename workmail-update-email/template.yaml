@@ -18,18 +18,27 @@ Parameters:
         Description: "[Optional] Text that you'd like to prepend to the email subject."
 
 Resources:
+    WorkMailUpdateEmailDependencyLayer:
+      Type: AWS::Serverless::LayerVersion
+      Properties:
+        ContentUri: dependencies/
+        CompatibleRuntimes:
+          - python3.12
+      Metadata:
+        BuildMethod: python3.12
+
     WorkMailUpdateEmailFunction:
         Type: AWS::Serverless::Function
         DependsOn: WorkMailUpdatedMsgBucket 
         Properties:
             CodeUri: src/
             Handler: app.update_handler
-            Runtime: python3.7
+            Runtime: python3.12
             Timeout: 10
             Role:
               Fn::GetAtt: WorkMailUpdateEmailFunctionRole.Arn
             Layers:
-                - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:2
+                - !Ref WorkMailUpdateEmailDependencyLayer
             Environment:
                 Variables:
                     DISCLAIMER:

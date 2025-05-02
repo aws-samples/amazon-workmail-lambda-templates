@@ -36,6 +36,15 @@ Parameters:
         Description: "[Optional] Determines if external messages should be updated."
 
 Resources:
+    WorkMailSaveAndUpdateEmailDependencyLayer:
+        Type: AWS::Serverless::LayerVersion
+        Properties:
+          ContentUri: dependencies/
+          CompatibleRuntimes:
+            - python3.12
+        Metadata:
+          BuildMethod: python3.12
+
     WorkMailSaveAndUpdateEmailFunction:
         Type: AWS::Serverless::Function
         DependsOn: 
@@ -44,12 +53,12 @@ Resources:
         Properties:
             CodeUri: src/
             Handler: app.update_handler
-            Runtime: python3.7
+            Runtime: python3.12
             Timeout: 10
             Role:
               Fn::GetAtt: WorkMailSaveAndUpdateEmailFunctionRole.Arn
             Layers:
-                - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:2
+                - !Ref WorkMailSaveAndUpdateEmailDependencyLayer
             Environment:
                 Variables:
                     DISCLAIMER:

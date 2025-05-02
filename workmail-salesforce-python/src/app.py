@@ -35,7 +35,7 @@ def salesforce_handler(event, context):
         # 1. Download and parse the email using messageId
         parsed_email: Message = email_utils.download_email(message_id)
         # 2. Process the parsed email message in Salesforce
-        sf_case: SalesforceCase = sf_utils.process_email(sf_client, parsed_email, event)
+        sf_case: sf_utils.SalesforceCase = sf_utils.process_email(sf_client, parsed_email, event)
         # 3. Process the calendar invite in Salesforce if exists
         calendar_item = email_utils.extract_element(parsed_email, 'text/calendar')
         if calendar_item is not None:

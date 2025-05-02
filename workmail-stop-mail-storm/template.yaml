@@ -19,7 +19,7 @@ Resources:
         Properties:
             CodeUri: src/
             Handler: app.lambdaHandler
-            Runtime: nodejs12.x
+            Runtime: nodejs22.x
             Timeout: 10
             Role: !GetAtt StopMailStormFunctionRole.Arn
             Environment:

@@ -11,18 +11,27 @@ Parameters:
         Description: "Code of the language to translate into. Refer: https://docs.aws.amazon.com/translate/latest/dg/what-is.html#what-is-languages"
 
 Resources:
+    WorkMailTranslateEmailDependencyLayer:
+      Type: AWS::Serverless::LayerVersion
+      Properties:
+        ContentUri: dependencies/
+        CompatibleRuntimes:
+          - python3.12
+      Metadata:
+        BuildMethod: python3.12
+
     WorkMailTranslateEmailFunction:
         Type: AWS::Serverless::Function
         DependsOn: WorkMailTranslatedMsgBucket 
         Properties:
             CodeUri: src/
             Handler: app.translate_handler
-            Runtime: python3.7
+            Runtime: python3.12
             Timeout: 10
             Role:
               Fn::GetAtt: WorkMailTranslateEmailFunctionRole.Arn
             Layers:
-                - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:2
+                - !Ref WorkMailTranslateEmailDependencyLayer
             Environment:
                 Variables:
                     DESTINATION_LANGUAGE:

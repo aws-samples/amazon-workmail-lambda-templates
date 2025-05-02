@@ -17,16 +17,25 @@ Parameters:
         Description: "Enter the security token of your Salesforce account"
 
 Resources:
+  WorkMailSalesforceDependencyLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: dependencies/
+      CompatibleRuntimes:
+        - python3.12
+    Metadata:
+      BuildMethod: python3.12
+
   WorkMailSalesforceFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
       Handler: app.salesforce_handler
-      Runtime: python3.7
+      Runtime: python3.12
       Timeout: 15
       Role: !GetAtt WorkMailSalesforceFunctionRole.Arn
       Layers:
-        - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:3
+        - !Ref WorkMailSalesforceDependencyLayer
       Environment:
         Variables:
           UPDATED_EMAIL_BUCKET:

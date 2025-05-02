@@ -18,7 +18,7 @@ For more advanced use cases, such as changing your CloudFormation template to cr
 
 ## Access Control
 By default, this serverless application and the resources that it creates can integrate with any [WorkMail Organization](https://docs.aws.amazon.com/workmail/latest/adminguide/organizations_overview.html) in your account, but the application and organization must be in the same region. To restrict that behavior you can either update the SourceArn attribute in [template.yaml](https://github.com/aws-samples/amazon-workmail-lambda-templates/blob/master/workmail-chat-bot-python/template.yaml)
-and then deploy the application by following the steps below **or** update the SourceArn attribute directly in the resource policy of each resource via their AWS Console after the deploying this application, [see example](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html). 
+and then deploy the application by following the steps below **or** update the SourceArn attribute directly in the resource policy of each resource via their AWS Console after the deploying this application, [see example](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html).
 
 For more information about the SourceArn attribute, [see this documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_condition-keys.html#condition-keys-sourcearn).
 
@@ -53,6 +53,10 @@ and check how to create a [Bucket Policy](https://docs.aws.amazon.com/serverless
 We refer to this bucket as `<Bucket-Name-For-Deployment>`.
 
 This step bundles all your code and configuration to the given S3 bucket. 
+
+```bash
+sam build
+```
 
 ```bash
 sam package \
