@@ -22,11 +22,10 @@ if not machine_state_for_output:
     error_msg = "'MACHINE_STATE_FOR_OUTPUT' not set in environment. The output of the Step Function state machine will be used."
     logger.debug(error_msg)
 
-wait_time_for_execution = os.getenv("WAIT_TIME_FOR_EXECUTION")
-if not machine_state_for_output:
+if not os.getenv("WAIT_TIME_FOR_EXECUTION"):
     error_msg = "'WAIT_TIME_FOR_EXECUTION' not set in environment. The default will be used."
     logger.debug(error_msg)
-    wait_time_for_execution = 0
+wait_time_for_execution = int(os.getenv("WAIT_TIME_FOR_EXECUTION", 0))
 
 execution_table = os.getenv("EXECUTION_TABLE")
 if not execution_table:

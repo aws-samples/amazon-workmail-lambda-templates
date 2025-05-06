@@ -12,17 +12,26 @@ Parameters:
         Description: "The ID of the SecretsManager secret in which the WordPress API token was saved."
 
 Resources:
+    WorkMailBlogPosterDependencyLayer:
+      Type: AWS::Serverless::LayerVersion
+      Properties:
+        ContentUri: dependencies/
+        CompatibleRuntimes:
+          - python3.12
+      Metadata:
+        BuildMethod: python3.12
+
     WorkMailBlogPosterFunction:
         Type: AWS::Serverless::Function
         Properties:
             CodeUri: src/
             Handler: app.post_handler
-            Runtime: python3.7
+            Runtime: python3.12
             Timeout: 10
             Role:
               Fn::GetAtt: WorkMailBlogPosterFunctionRole.Arn
             Layers:
-                - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:2
+                - !Ref WorkMailBlogPosterDependencyLayer
             Environment:
                 Variables:
                     BLOG_DOMAIN:

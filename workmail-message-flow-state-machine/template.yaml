@@ -21,7 +21,7 @@ Resources:
         Properties:
             CodeUri: src/
             Handler: app.orchestrator_handler
-            Runtime: python3.7
+            Runtime: python3.12
             Role:
               Fn::GetAtt: MfsmFunctionRole.Arn
             Timeout: 60
@@ -80,7 +80,8 @@ Resources:
                 Action:
                     - states:*
                 Resource:
-                    Fn::GetAtt: MfsmStateMachine.Arn
+                    - Fn::GetAtt: MfsmStateMachine.Arn
+                    - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${MfsmStateMachine.Name}:*'
           Roles:
             - !Ref MfsmFunctionRole
     

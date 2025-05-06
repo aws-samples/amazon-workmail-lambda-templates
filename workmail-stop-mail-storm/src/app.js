@@ -1,7 +1,9 @@
 /* jshint node: true, esversion: 9 */
 'use strict';
-const AWS = require('aws-sdk'); // this is automatically installed in your lambda environment
-const cloudwatch = new AWS.CloudWatch(); // uses your lambda credentials to call Cloudwatch
+
+// this is automatically installed in your lambda environment
+const { CloudWatch } = require('@aws-sdk/client-cloudwatch');
+const cloudwatch = new CloudWatch(); // uses your lambda credentials to call Cloudwatch
 
 const ALARM_PREFIX = 'EmailsReceived-';
 const DEFAULT_THRESHOLD = 20; // in case environment variable THRESHOLD is missing.
@@ -29,7 +31,7 @@ async function emitNewMetric(protectedRecipients) {
     // otherwise, the alarm would clear after 5 mins, people would be able to continue the storm for a while again
     // that would lead to a on-off-on-off pattern, which still lets too much junk through
 
-    await cloudwatch.putMetricData(params).promise();
+    await cloudwatch.putMetricData(params);
     console.log('Finished putMetricData');
 }
 
@@ -72,7 +74,7 @@ async function createMissingAlarms(alarms, protectedRecipients) {
 
         };
         console.log('Creating alarm for address ' + protectedAddress);
-        const alarm = await cloudwatch.putMetricAlarm(params).promise();
+        const alarm = await cloudwatch.putMetricAlarm(params);
         console.log(alarm);
     }
 }
@@ -85,7 +87,7 @@ async function verifyAlarms(protectedRecipients) {
         AlarmTypes: ['MetricAlarm'],
     };
 
-    const allAlarms = await cloudwatch.describeAlarms(params).promise();
+    const allAlarms = await cloudwatch.describeAlarms(params);
     console.log('Finished describeAlarms - Results:');
     console.log(allAlarms);
 

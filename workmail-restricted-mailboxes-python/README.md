@@ -54,6 +54,10 @@ We refer to this bucket as `<Bucket-Name-For-Deployment>`.
 This step bundles all your code and configuration to the given S3 bucket. 
 
 ```bash
+sam build
+```
+
+```bash
 sam package \
  --template-file  template.yaml \
  --output-template-file packaged.yaml \

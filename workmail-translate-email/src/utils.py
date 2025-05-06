@@ -155,7 +155,7 @@ def download_email(message_id):
     This method downloads full email MIME content using GetRawMessageContent API and uses email.parser class
     for parsing it into Python email.message.EmailMessage class.
     Reference:
-        https://docs.python.org/3.7/library/email.message.html#email.message.EmailMessage
+        https://docs.python.org/3.12/library/email.message.html#email.message.EmailMessage
         https://docs.python.org/3/library/email.parser.html
     Parameters
     ----------

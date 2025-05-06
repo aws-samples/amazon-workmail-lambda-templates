@@ -24,7 +24,7 @@ Resources:
         Properties:
             CodeUri: src/
             Handler: app.restricted_mailboxes_handler
-            Runtime: python3.7
+            Runtime: python3.12
             Role:
               Fn::GetAtt: WorkMailRestrictedMailboxesFunctionRole.Arn
             Timeout: 10

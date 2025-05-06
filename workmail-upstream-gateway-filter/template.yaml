@@ -20,7 +20,7 @@ Resources:
         Properties:
             CodeUri: src/
             Handler: app.upstream_gateway_handler
-            Runtime: python3.7
+            Runtime: python3.12
             Role:
               Fn::GetAtt: WorkMailUpstreamGatewayFilterFunctionRole.Arn
             Timeout: 10

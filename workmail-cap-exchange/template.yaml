@@ -19,16 +19,25 @@ Parameters:
     Description: "Whether event logging is enabled. When set to False events and exception messages are never logged."
 
 Resources:
+  WorkMailCapExchangeDependencyLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: dependencies/
+      CompatibleRuntimes:
+        - python3.12
+    Metadata:
+      BuildMethod: python3.12
+
   WorkMailCapExchangeFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 20
       Role: !GetAtt WorkMailCapExchangeFunctionRole.Arn
       Layers:
-        - !Sub arn:aws:lambda:${AWS::Region}:489970191081:layer:WorkMailLambdaLayer:9
+        - !Ref WorkMailCapExchangeDependencyLayer
       Environment:
         Variables:
           EXCHANGE_SECRETS_ID:

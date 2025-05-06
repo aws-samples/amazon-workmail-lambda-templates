@@ -2,15 +2,7 @@ matrix:
   include:
     - language: python
       python:
-        - "3.6"
-      install:
-        - pip install -r requirements.txt
-      script:
-        - python -m pyflakes .
-
-    - language: python
-      python:
-        - "3.7"
+        - "3.12"
       install:
         - pip install -r requirements.txt
       script:
@@ -18,7 +10,7 @@ matrix:
 
     - language: node_js
       node_js:
-        - 12
+        - 22
       before_install:
         - cd workmail-stop-mail-storm/src
       install:

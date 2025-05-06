@@ -1,6 +1,3 @@
-pyflakes==3.3.2
 boto3==1.38.5
-requests==2.32.3
-beautifulsoup4==4.13.4
 simple-salesforce==1.12.6
 icalendar==6.1.3
